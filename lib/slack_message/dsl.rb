@@ -1,0 +1,150 @@
+class SlackMessage::Dsl
+  attr_reader :body, :default_section
+
+  def initialize
+    @body = []
+    @default_section = Section.new
+  end
+
+  # allowable top-level entities within a block
+
+  def section(&block)
+    finalize_default_section
+
+    section = Section.new.tap do |s|
+      s.instance_eval(&block)
+    end
+
+    @body.push(section.render)
+  end
+
+  def divider
+    finalize_default_section
+
+    @body.push({ type: "divider" })
+  end
+
+  def context(text)
+    finalize_default_section
+
+    @body.push({ type: "context", elements: [{
+      type: "mrkdwn", text: text
+    }]})
+  end
+
+  # end entities
+
+  # delegation to allow terse syntax without e.g. `section`
+
+  def text(*args); default_section.text(*args); end
+  def link_button(*args); default_section.link_button(*args); end
+  def blank_line(*args); default_section.blank_line(*args); end
+  def link(*args); default_section.link(*args); end
+  def list_item(*args); default_section.list_item(*args); end
+
+  # end delegation
+
+  private
+
+  # when doing things that would generate new top-levels, first try
+  # to finish the implicit section.
+  def finalize_default_section
+    if default_section.has_content?
+      @body.push(default_section.body)
+    end
+
+    @default_section = Section.new
+  end
+
+  def render
+    finalize_default_section
+    @body
+  end
+
+  class Section
+    attr_reader :body
+
+    def initialize
+      @body = { type: "section" }
+      @list = List.new
+    end
+
+    def text(msg)
+      if @body.include?(:text)
+        @body[:text][:text] << "\n#{msg}"
+
+      else
+        @body.merge!({ text: { type: "mrkdwn", text: msg } })
+      end
+    end
+
+    # styles:  default, primary, danger
+    def link_button(label, target, style: :primary)
+      config = {
+        accessory: {
+          type: "button",
+          url: target,
+          text: {
+            type: "plain_text",
+            text: label,
+            emoji: true
+          },
+        }
+      }
+
+      if style != :default
+        config[:accessory][:style] = style
+      end
+
+      @body.merge!(config)
+    end
+
+    # for markdown links
+    def link(label, target)
+      "<#{target}|#{label}>"
+    end
+
+    def list_item(title, value)
+      @list.add(title, value)
+    end
+
+    def blank_line
+      text " " # unicode emspace
+    end
+
+    def has_content?
+      @body.keys.length > 1 || @list.any?
+    end
+
+    def render
+      body[:fields] = @list.render if @list.any?
+      body
+    end
+  end
+
+  class List
+    def initialize
+      @items = []
+    end
+
+    def any?
+      @items.any?
+    end
+
+    def add(title, value)
+      @items.push(["*#{title}*", value])
+    end
+
+    def render
+      @items.push([' ', ' ']) if @items.length % 2 == 1
+      @items.each_slice(2).flat_map do |(first, second)|
+        [
+          { type: "mrkdwn", text: first[0] },
+          { type: "mrkdwn", text: second[0] },
+          { type: "mrkdwn", text: first[1] },
+          { type: "mrkdwn", text: second[1] },
+      ]
+      end
+    end
+  end
+end
