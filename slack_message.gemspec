@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'slack_message'
-  gem.version     = "1.1.0"
+  gem.version     = "1.2.0"
   gem.summary     = "A nice DSL for composing rich messages in Slack"
   gem.authors     = ["Joe Mastey"]
   gem.email       = 'hello@joemastey.com'
@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
 
   glob = lambda { |patterns| gem.files & Dir[*patterns] }
 
-  gem.files       = ["lib/slack_message.rb"]
+  gem.files       = `git ls-files`.split($/)
   gem.test_files  = glob['{spec/{**/}*_spec.rb']
 
   gem.metadata    = {
