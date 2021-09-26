@@ -32,7 +32,7 @@ module SlackMessage::Configuration
       warn("WARNING: Overriding profile '#{handle}' in SlackMessage config")
     end
 
-    @@profiles[handle] = { name: name, url: url }
+    @@profiles[handle] = { name: name, url: url, handle: handle }
   end
 
   def self.profile(handle)

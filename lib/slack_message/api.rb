@@ -15,11 +15,23 @@ class SlackMessage::Api
       http.request(request)
     end
 
-    user = JSON.parse(response.body)
-    user["user"]["id"]
+    if response.code != "200"
+      raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
+    end
+
+    payload = JSON.parse(response.body)
+    if payload.include?("error") && payload["error"] == "invalid_auth"
+      raise "Received an error because your authentication token isn't properly configured:\n#{response.body}"
+    elsif payload.include?("error")
+      raise "Received error response from Slack during user lookup:\n#{response.body}"
+    end
+
+    payload["user"]["id"]
   end
 
   def self.post(payload, target, profile)
+    profile[:url] = profile[:url]
+
     uri     = URI.parse(profile[:url])
     params  = {
       channel: target,
@@ -27,6 +39,19 @@ class SlackMessage::Api
       blocks: payload
     }.to_json
 
-    Net::HTTP.post_form uri, { payload: params }
+    response = Net::HTTP.post_form uri, { payload: params }
+
+    # let's try to be helpful about error messages
+    if response.body == "invalid_token"
+      raise "Couldn't send slack message because the URL for profile '#{profile[:handle]}' is wrong."
+    elsif response.body == "channel_not_found"
+      raise "Tried to send Slack message to non-existent channel or user '#{target}'"
+    elsif response.body == "missing_text_or_fallback_or_attachments"
+      raise "Tried to send Slack message with invalid payload."
+    elsif response.code != "200"
+      raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
+    end
+
+    response
   end
 end

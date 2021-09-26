@@ -1,9 +1,10 @@
-Slack Message - A Friendly DSL for Building Messages
+SlackMessage: a Friendly DSL for Slack
 =============
 
-A friendly little DSL to build (and send) rich Slack messages using the block
-API. Designed to require zero dependencies and to make maintaining your Slack
-integration easy.
+SlackMessage is a wrapper over the [Block Kit
+API](https://app.slack.com/block-kit-builder/) to make it easy to read and
+write messages to slack in your ruby application. It has zero dependencies and
+is built to be opinionated to keep your configuration needs low.
 
 To install, just add `slack_message` to your bundle and you're ready to go.
 
@@ -37,15 +38,16 @@ you can configure those profiles as well, by giving each of them a name:
 
 ```ruby
 SlackMessage.configure do |config|
+  # default profile
   config.add_profile(name: 'Slack Notifier', url: ENV['SLACK_WEBHOOK_URL'])
+
+  # additional profiles (see below for usage)
   config.add_profile(:prod_alert_bot, name: 'Prod Alert Bot', url: ENV['SLACK_PROD_ALERT_WEBHOOK_URL'])
   config.add_profile(:sidekiq_bot, name: 'Sidekiq Bot', url: ENV['SLACK_SIDEKIQ_WEBHOOK_URL'])
 end
 ```
 
-See below for usage of multiple profiles.
-
-#### Searching for Users
+#### Configuring User Search
 
 Slack's API no longer allows you to send DMs to users by username. You need to
 look up a user's internal ID and send to that ID. Thankfully, there is a lookup
@@ -69,8 +71,54 @@ SlackMessage.post_to('#general') do
 end
 ```
 
-That's it! If you configured an API token for user lookup (see Searching for Users
-above), then sending messages to individual users is just as simple:
+That's it! SlackMessage will automatically serialize for the API like this:
+
+```json
+[{"type":"section","text":{"type":"mrkdwn","text":"We did it! :thumbsup:"}}]
+```
+
+Details like remembering that Slack made a mystifying decision to force you to
+request "mrkdwn", or requiring your text to be wrapped into a section are handled
+for you.
+
+Building up messages is meant to be as user-friendly as possible:
+
+```ruby
+SlackMessage.build do
+  text "haiku are easy"
+  text "but sometimes they don't make sense"
+  text "refrigerator"
+
+  context "- unknown author"
+end
+```
+
+SlackMessage will combine your text declarations and add any necessary wrappers
+automatically:
+
+```json
+[
+  {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": "haiku are easy\nbut sometimes they don't make sense\nrefrigerator"
+    }
+  },
+  {
+    "type": "context",
+    "elements": [
+      {
+        "type": "mrkdwn",
+        "text": "- unknown author"
+      }
+    ]
+  }
+]
+```
+
+If you've configured an API key for user search (see above in configuration),
+it's just as easy to send messages directly to users:
 
 ```ruby
 SlackMessage.post_to('hello@joemastey.com') do
@@ -78,9 +126,11 @@ SlackMessage.post_to('hello@joemastey.com') do
 end
 ```
 
-But the real joy of this gem is in building richer messages. See Slack's
-[Block Kit Builder](https://app.slack.com/block-kit-builder/) to understand
-the structure of blocks better:
+SlackMessage is able to build all kinds of rich messages for you, and has been
+a real joy to use for the author at least. To understand a bit more about the
+possibilities of blocks, see Slack's [Block Kit
+Builder](https://app.slack.com/block-kit-builder/) to understand the structure
+better:
 
 ```ruby
 SlackMessage.post_to('#general') do
@@ -88,6 +138,14 @@ SlackMessage.post_to('#general') do
     text "A job has generated some output for you to review."
     text 'And More' * 10
     link_button "See Results", "https://google.com"
+  end
+
+  section do
+    text ":unlock-new: New Data Summary"
+
+    list_item "Date", "09/05/2021"
+    list_item "Total Imported", 45_004
+    list_item "Total Errors", 5
   end
 
   divider
@@ -133,7 +191,6 @@ Also, some behaviors that are still planned but not yet added:
 
 * allow custom http_options in configuration
 * allow custom slack username per built message
-* so much error checking / handling
 
 Contributing
 ------------
