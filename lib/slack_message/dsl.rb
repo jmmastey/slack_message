@@ -1,9 +1,10 @@
 class SlackMessage::Dsl
-  attr_reader :body, :default_section
+  attr_reader :body, :default_section, :custom_bot_name
 
   def initialize
     @body = []
     @default_section = Section.new
+    @custom_bot_name = nil
   end
 
   # allowable top-level entities within a block
@@ -38,11 +39,25 @@ class SlackMessage::Dsl
 
   def text(*args); default_section.text(*args); end
   def link_button(*args); default_section.link_button(*args); end
+  def image(*args); default_section.image(*args); end
   def blank_line(*args); default_section.blank_line(*args); end
   def link(*args); default_section.link(*args); end
   def list_item(*args); default_section.list_item(*args); end
 
   # end delegation
+
+  # custom bot name
+
+  def bot_name(name)
+    @custom_bot_name = name
+  end
+
+  # end bot name
+
+  def render
+    finalize_default_section
+    @body
+  end
 
   private
 
@@ -54,11 +69,6 @@ class SlackMessage::Dsl
     end
 
     @default_section = Section.new
-  end
-
-  def render
-    finalize_default_section
-    @body
   end
 
   class Section
@@ -80,6 +90,15 @@ class SlackMessage::Dsl
 
     # styles:  default, primary, danger
     def link_button(label, target, style: :primary)
+      if !@body[:accessory].nil?
+        previous_type = @body[:accessory][:type]
+        warn "WARNING: Overriding previous #{previous_type} in section to use link_button instead: #{label}"
+      end
+
+      unless /(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/i =~ target
+        warn "WARNING: Passing a probably-invalid URL to link button #{label} (url: '#{target}')"
+      end
+
       config = {
         accessory: {
           type: "button",
@@ -95,6 +114,24 @@ class SlackMessage::Dsl
       if style != :default
         config[:accessory][:style] = style
       end
+
+      @body.merge!(config)
+    end
+
+    def image(url, alt_text: nil)
+      if !@body[:accessory].nil?
+        previous_type = @body[:accessory][:type]
+        warn "WARNING: Overriding previous #{previous_type} in section to use image instead: #{url}"
+      end
+
+      config = {
+        accessory: {
+          type: "image",
+          image_url: url
+        }
+      }
+
+      config[:accessory][:alt_text] = alt_text if !alt_text.nil?
 
       @body.merge!(config)
     end

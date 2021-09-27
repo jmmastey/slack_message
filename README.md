@@ -6,6 +6,14 @@ API](https://app.slack.com/block-kit-builder/) to make it easy to read and
 write messages to slack in your ruby application. It has zero dependencies and
 is built to be opinionated to keep your configuration needs low.
 
+Posting a message to Slack should be this easy:
+
+```ruby
+SlackMessage.post_to('#general') do
+  text "We did it @here! :thumbsup:"
+end
+```
+
 To install, just add `slack_message` to your bundle and you're ready to go.
 
 
@@ -63,11 +71,11 @@ end
 
 ### Usage
 
-Basic usage is pretty straightforward:
+As mentioned at the top, posting a message to Slack is dang easy:
 
 ```ruby
 SlackMessage.post_to('#general') do
-  text "We did it! :thumbsup:"
+  text "We did it @here! :thumbsup:"
 end
 ```
 
@@ -130,7 +138,7 @@ SlackMessage is able to build all kinds of rich messages for you, and has been
 a real joy to use for the author at least. To understand a bit more about the
 possibilities of blocks, see Slack's [Block Kit
 Builder](https://app.slack.com/block-kit-builder/) to understand the structure
-better:
+better. There are lots of options:
 
 ```ruby
 SlackMessage.post_to('#general') do
@@ -174,6 +182,15 @@ SlackMessage.post_to('#general', as: :sidekiq_bot) do
 end
 ```
 
+You can also use a custom name when sending a message:
+
+```ruby
+SlackMessage.post_to('#general') do
+  bot_name "CoffeeBot"
+
+  text ":coffee::clock: Time to take a break!"
+end
+```
 
 What it Doesn't Do
 ------------
@@ -190,7 +207,8 @@ DSL to include more of the block API itself.
 Also, some behaviors that are still planned but not yet added:
 
 * allow custom http_options in configuration
-* allow custom slack username per built message
+* more of BlockKit's options
+* any interactive elements at all (I don't understand them yet)
 
 Contributing
 ------------

@@ -16,11 +16,14 @@ module SlackMessage
   end
 
   def self.post_to(target, as: :default, &block)
-    payload = build(&block)
-    profile = Configuration.profile(as)
+    payload = Dsl.new.tap do |instance|
+      instance.instance_eval(&block)
+    end
+
+    profile = Configuration.profile(as, custom_name: payload.custom_bot_name)
     target  = user_id_for(target) if target =~ /^\S{1,}@\S{2,}\.\S{2,}$/
 
-    Api.post(payload, target, profile)
+    Api.post(payload.render, target, profile)
   end
 
   def self.build(&block)

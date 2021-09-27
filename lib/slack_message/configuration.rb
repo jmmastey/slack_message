@@ -29,17 +29,19 @@ module SlackMessage::Configuration
 
   def self.add_profile(handle = :default, name:, url:)
     if @@profiles.include?(handle)
-      warn("WARNING: Overriding profile '#{handle}' in SlackMessage config")
+      warn "WARNING: Overriding profile '#{handle}' in SlackMessage config"
     end
 
     @@profiles[handle] = { name: name, url: url, handle: handle }
   end
 
-  def self.profile(handle)
+  def self.profile(handle, custom_name: nil)
     unless @@profiles.include?(handle)
       raise ArgumentError, "Unknown SlackMessage profile '#{handle}'."
     end
 
-    @@profiles[handle]
+    @@profiles[handle].tap do |profile|
+      profile[:name] = custom_name if !custom_name.nil?
+    end
   end
 end
