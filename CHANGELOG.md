@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2021-09-27
+- Moved image to accessory_image to differentiate between the image block
+  and the accessory image within a block.
+
 ## [1.3.0] - 2021-09-27
 - Added ability to use custom names when posting.
 - Added ability to post images within sections.

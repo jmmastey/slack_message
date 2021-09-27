@@ -25,6 +25,24 @@ class SlackMessage::Dsl
     @body.push({ type: "divider" })
   end
 
+  def image(url, alt_text:, title: nil)
+    finalize_default_section
+
+    config = {
+      type: "image",
+      image_url: url,
+      alt_text: alt_text,
+    }
+
+    if !title.nil?
+      config[:title] = {
+        type: "plain_text", text: title, emoji: true
+      }
+    end
+
+    @body.push(config)
+  end
+
   def context(text)
     finalize_default_section
 
@@ -39,7 +57,7 @@ class SlackMessage::Dsl
 
   def text(*args); default_section.text(*args); end
   def link_button(*args); default_section.link_button(*args); end
-  def image(*args); default_section.image(*args); end
+  def accessory_image(*args); default_section.accessory_image(*args); end
   def blank_line(*args); default_section.blank_line(*args); end
   def link(*args); default_section.link(*args); end
   def list_item(*args); default_section.list_item(*args); end
@@ -118,10 +136,10 @@ class SlackMessage::Dsl
       @body.merge!(config)
     end
 
-    def image(url, alt_text: nil)
+    def accessory_image(url, alt_text: nil)
       if !@body[:accessory].nil?
         previous_type = @body[:accessory][:type]
-        warn "WARNING: Overriding previous #{previous_type} in section to use image instead: #{url}"
+        warn "WARNING: Overriding previous #{previous_type} in section to use accessory image instead: #{url}"
       end
 
       config = {

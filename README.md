@@ -209,6 +209,7 @@ Also, some behaviors that are still planned but not yet added:
 * allow custom http_options in configuration
 * more of BlockKit's options
 * any interactive elements at all (I don't understand them yet)
+* more interesting return types for your message
 
 Contributing
 ------------
