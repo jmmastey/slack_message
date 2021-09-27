@@ -69,7 +69,7 @@ SlackMessage.configure do |config|
 end
 ```
 
-### Usage
+### Posting Messages
 
 As mentioned at the top, posting a message to Slack is dang easy:
 
