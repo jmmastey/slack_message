@@ -192,6 +192,18 @@ SlackMessage.post_to('#general') do
 end
 ```
 
+Opinionated Stances
+------------
+
+Slack's API has a lot of options available to you! But this gem takes some
+opinionated stances on how to make use of that API. For instance:
+
+* Unless you request otherwise, text is always rendered using `mrkdwn`. If you
+  want plaintext, you'll need to ask for it.
+* Generally, same goes for the `emoji` flag on almost every text element.
+* It's possible to ask for a `blank_line` in sections, even though that concept
+  isn't real. In this case, a text line containing only an emspace is rendered.
+
 What it Doesn't Do
 ------------
 
@@ -210,6 +222,8 @@ Also, some behaviors that are still planned but not yet added:
 * more of BlockKit's options
 * any interactive elements at all (I don't understand them yet)
 * more interesting return types for your message
+* some way to specify default channel for a given profile (and omit param to post_to)
+* richer text formatting (ul is currently a hack)
 
 Contributing
 ------------

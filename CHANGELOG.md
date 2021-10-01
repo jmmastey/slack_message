@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2021-10-01
+- Added `ol` and `ul` to sections w/ some formatting
+
 ## [1.4.0] - 2021-09-27
 - Moved image to accessory_image to differentiate between the image block
   and the accessory image within a block.

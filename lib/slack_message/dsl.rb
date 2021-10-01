@@ -1,6 +1,8 @@
 class SlackMessage::Dsl
   attr_reader :body, :default_section, :custom_bot_name
 
+  EMSPACE = " " # unicode emspace
+
   def initialize
     @body = []
     @default_section = Section.new
@@ -61,6 +63,8 @@ class SlackMessage::Dsl
   def blank_line(*args); default_section.blank_line(*args); end
   def link(*args); default_section.link(*args); end
   def list_item(*args); default_section.list_item(*args); end
+  def ul(*args); default_section.ul(*args); end
+  def ol(*args); default_section.ol(*args); end
 
   # end delegation
 
@@ -104,6 +108,20 @@ class SlackMessage::Dsl
       else
         @body.merge!({ text: { type: "mrkdwn", text: msg } })
       end
+    end
+
+    def ul(elements)
+      raise Arguments, "please pass an array" unless elements.respond_to?(:map)
+      text(
+        elements.map { |text| "#{EMSPACE}• #{text}" }.join("\n")
+      )
+    end
+
+    def ol(elements)
+      raise Arguments, "please pass an array" unless elements.respond_to?(:map)
+      text(
+        elements.map.with_index(1) { |text, idx| "#{EMSPACE}#{idx}. #{text}" }.join("\n")
+      )
     end
 
     # styles:  default, primary, danger
@@ -164,7 +182,7 @@ class SlackMessage::Dsl
     end
 
     def blank_line
-      text " " # unicode emspace
+      text EMSPACE
     end
 
     def has_content?
