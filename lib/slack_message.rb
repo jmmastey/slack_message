@@ -11,7 +11,7 @@ module SlackMessage
     configuration.configure(&block)
   end
 
-  def self.user_id_for(email)
+  def self.user_id_for(email) # spooky undocumented public method 👻
     Api::user_id_for(email)
   end
 
@@ -21,6 +21,22 @@ module SlackMessage
     end
 
     profile = Configuration.profile(as, custom_name: payload.custom_bot_name)
+    target  = user_id_for(target) if target =~ /^\S{1,}@\S{2,}\.\S{2,}$/
+
+    Api.post(payload.render, target, profile)
+  end
+
+  def self.post_as(profile_name, &block)
+    payload = Dsl.new.tap do |instance|
+      instance.instance_eval(&block)
+    end
+
+    profile = Configuration.profile(profile_name, custom_name: payload.custom_bot_name)
+    if profile[:default_channel].nil?
+      raise ArgumentError, "Sorry, you need to specify a default_channel for profile #{profile_name} to use post_as"
+    end
+
+    target  = profile[:default_channel]
     target  = user_id_for(target) if target =~ /^\S{1,}@\S{2,}\.\S{2,}$/
 
     Api.post(payload.render, target, profile)

@@ -55,6 +55,28 @@ SlackMessage.configure do |config|
 end
 ```
 
+If you frequently ping the same channel with the same bot, and don't want to
+continually specify the channel name, you can specify a default channel and
+post using the `post_as` method. It is otherwise identical to `post_to`, but
+allows you to omit the channel argument:
+
+```ruby
+SlackMessage.configure do |config|
+  config.add_profile(:prod_alert_bot,
+    name: 'Prod Alert Bot',
+    url: ENV['SLACK_PROD_ALERT_WEBHOOK_URL'],
+    default_channel: '#red_alerts'
+  )
+end
+
+SlackMessage.post_as(:prod_alert_bot) do
+  text ":ambulance: weeooo weeooo something went wrong"
+end
+```
+
+Note that `post_as` does not allow you to choose a channel (because that's just
+the same as using `post_to`), so you really do have to specify `default_channel`.
+
 #### Configuring User Search
 
 Slack's API no longer allows you to send DMs to users by username. You need to
