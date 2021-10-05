@@ -1,6 +1,10 @@
 SlackMessage: a Friendly DSL for Slack
 =============
 
+> "Whoa, I actually understand this."
+>
+>  — my PM
+
 SlackMessage is a wrapper over the [Block Kit
 API](https://app.slack.com/block-kit-builder/) to make it easy to read and
 write messages to slack in your ruby application. It has zero dependencies and
@@ -240,11 +244,11 @@ DSL to include more of the block API itself.
 
 Also, some behaviors that are still planned but not yet added:
 
+* some API documentation amirite?
 * allow custom http_options in configuration
 * more of BlockKit's options
 * any interactive elements at all (I don't understand them yet)
 * more interesting return types for your message
-* some way to specify default channel for a given profile (and omit param to post_to)
 * richer text formatting (ul is currently a hack)
 
 Contributing
