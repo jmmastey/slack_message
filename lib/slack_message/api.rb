@@ -1,5 +1,6 @@
 require 'net/http'
 require 'net/https'
+require 'json'
 
 class SlackMessage::Api
   def self.user_id_for(email)

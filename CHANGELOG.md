@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
+## [1.7.1] - 2021-10-06
+- Fixed literally a syntax issue.
+- Fixed specs.
+- Fixed API to include JSON since consumers may not have loaded it.
+
 ## [1.7.0] - 2021-10-06
+- THIS RELEASE IS BADLY BROKEN.
 - Added new error messages when API configuration is wrong / missing.
 - Fixed issue with `instance_eval` and using methods within block.
 - Fixed issue with sectionless `list_item`.

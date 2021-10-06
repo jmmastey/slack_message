@@ -225,6 +225,8 @@ opinionated stances on how to make use of that API. For instance:
 * Generally, same goes for the `emoji` flag on almost every text element.
 * It's possible to ask for a `blank_line` in sections, even though that concept
   isn't real. In this case, a text line containing only an emspace is rendered.
+* It's easy to configure a bot for consistent name / channel use. My previous
+  use of SlackNotifier led to frequently inconsistent names.
 
 What it Doesn't Do
 ------------

@@ -7,9 +7,10 @@ RSpec.describe SlackMessage do
 
   describe "API convenience" do
     it "can grab user IDs" do
-      allow(SlackMessage::Api).to receive(:api_request)
-        .with(/hello@joemastey.com/)
-        .and_return({ "user" => { "id" => "ABC123" }})
+      SlackMessage.configure { |c| c.api_token = "asdf" }
+      allow(Net::HTTP).to receive(:start).and_return(
+        double(code: "200", body: '{ "user": { "id": "ABC123" }}')
+      )
 
       result = SlackMessage.user_id_for("hello@joemastey.com")
       expect(result).to eq("ABC123")
@@ -62,7 +63,6 @@ RSpec.describe SlackMessage do
         config.add_profile(name: 'default profile', url: 'http://hooks.slack.com/1234/')
         config.add_profile(:nonstandard, name: 'another profile', url: 'http://hooks.slack.com/1234/')
       end
-
 
       expect(SlackMessage.configuration.profile(:default)[:name]).to eq('default profile')
       expect(SlackMessage.configuration.profile(:nonstandard)[:name]).to eq('another profile')

@@ -6,7 +6,7 @@ class SlackMessage::Dsl
   def initialize(block)
     # Delegate missing methods to caller scope. Thanks 2008:
     # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
-    @caller_self = eval("self", block.binding
+    @caller_self = eval("self", block.binding)
 
     @body = []
     @default_section = Section.new
