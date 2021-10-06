@@ -3,7 +3,11 @@ class SlackMessage::Dsl
 
   EMSPACE = " " # unicode emspace
 
-  def initialize
+  def initialize(block)
+    # Delegate missing methods to caller scope. Thanks 2008:
+    # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
+    @caller_self = eval("self", block.binding
+
     @body = []
     @default_section = Section.new
     @custom_bot_name = nil
@@ -81,13 +85,17 @@ class SlackMessage::Dsl
     @body
   end
 
+  def method_missing(meth, *args, &blk)
+    @caller_self.send meth, *args, &blk
+  end
+
   private
 
   # when doing things that would generate new top-levels, first try
   # to finish the implicit section.
   def finalize_default_section
     if default_section.has_content?
-      @body.push(default_section.body)
+      @body.push(default_section.render)
     end
 
     @default_section = Section.new

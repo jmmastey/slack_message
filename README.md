@@ -1,10 +1,6 @@
 SlackMessage: a Friendly DSL for Slack
 =============
 
-> "Whoa, I actually understand this."
->
->  — my PM
-
 SlackMessage is a wrapper over the [Block Kit
 API](https://app.slack.com/block-kit-builder/) to make it easy to read and
 write messages to slack in your ruby application. It has zero dependencies and

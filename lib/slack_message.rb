@@ -16,7 +16,7 @@ module SlackMessage
   end
 
   def self.post_to(target, as: :default, &block)
-    payload = Dsl.new.tap do |instance|
+    payload = Dsl.new(block).tap do |instance|
       instance.instance_eval(&block)
     end
 
@@ -27,7 +27,7 @@ module SlackMessage
   end
 
   def self.post_as(profile_name, &block)
-    payload = Dsl.new.tap do |instance|
+    payload = Dsl.new(block).tap do |instance|
       instance.instance_eval(&block)
     end
 
@@ -43,7 +43,7 @@ module SlackMessage
   end
 
   def self.build(&block)
-    Dsl.new.tap do |instance|
+    Dsl.new(block).tap do |instance|
       instance.instance_eval(&block)
     end.send(:render)
   end

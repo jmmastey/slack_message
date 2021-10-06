@@ -17,9 +17,16 @@ class SlackMessage::Api
 
     if response.code != "200"
       raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
+    elsif response.body == ""
+      raise "Received empty 200 response from Slack when looking up user info. Check your API key."
     end
 
-    payload = JSON.parse(response.body)
+    begin
+      payload = JSON.parse(response.body)
+    rescue
+      raise "Unable to parse JSON response from Slack API\n#{response.body}"
+    end
+
     if payload.include?("error") && payload["error"] == "invalid_auth"
       raise "Received an error because your authentication token isn't properly configured:\n#{response.body}"
     elsif payload.include?("error")
@@ -48,6 +55,8 @@ class SlackMessage::Api
       raise "Tried to send Slack message to non-existent channel or user '#{target}'"
     elsif response.body == "missing_text_or_fallback_or_attachments"
       raise "Tried to send Slack message with invalid payload."
+    elsif response.code == "302"
+      raise "Got 302 response while posting to Slack. Check your webhook URL for '#{profile[:handle]}'."
     elsif response.code != "200"
       raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     end
