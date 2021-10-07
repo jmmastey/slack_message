@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [1.8.0] - 2021-10-07
+- Added the ability to test in RSpec
+
 ## [1.7.1] - 2021-10-06
 - Fixed literally a syntax issue.
 - Fixed specs.

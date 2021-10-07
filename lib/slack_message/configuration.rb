@@ -27,6 +27,10 @@ module SlackMessage::Configuration
 
   ###
 
+  def self.clear_profiles! # test harness, mainly
+    @@profiles = {}
+  end
+
   def self.add_profile(handle = :default, name:, url:, default_channel: nil)
     if @@profiles.include?(handle)
       warn "WARNING: Overriding profile '#{handle}' in SlackMessage config"

@@ -1,10 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe SlackMessage do
-  it "includes a bunch of stuff" do
-    expect(SlackMessage).to respond_to(:post_to)
-  end
-
   describe "API convenience" do
     it "can grab user IDs" do
       SlackMessage.configure { |c| c.api_token = "asdf" }
@@ -70,6 +66,33 @@ RSpec.describe SlackMessage do
       expect {
         SlackMessage.configuration.profile(:missing)
       }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe "custom expectations" do
+    before do
+      SlackMessage.configure do |config|
+        config.clear_profiles!
+        config.add_profile(name: 'default profile', url: 'http://hooks.slack.com/1234/')
+      end
+    end
+
+    it "can assert expectations against posts" do
+      expect {
+        SlackMessage.post_to('#lieutenant') { text "foo" }
+      }.not_to post_slack_message_to('#general')
+
+      expect {
+        SlackMessage.post_to('#general') { text "foo" }
+      }.to post_slack_message_to('#general').with_content_matching(/foo/)
+    end
+
+    it "is not stateful" do
+      expect {
+        SlackMessage.post_to('#general') { text "foo" }
+      }.to post_slack_message_to('#general')
+
+      expect { }.not_to post_slack_message_to('#general')
     end
   end
 end

@@ -45,9 +45,9 @@ class SlackMessage::Api
       channel: target,
       username: profile[:name],
       blocks: payload
-    }.to_json
+    }
 
-    response = Net::HTTP.post_form uri, { payload: params }
+    response = execute_post_form(uri, params, profile[:handle])
 
     # let's try to be helpful about error messages
     if response.body == "invalid_token"
@@ -63,5 +63,9 @@ class SlackMessage::Api
     end
 
     response
+  end
+
+  def self.execute_post_form(uri, params, _profile)
+    Net::HTTP.post_form uri, { payload: params.to_json }
   end
 end

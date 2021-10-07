@@ -214,6 +214,36 @@ SlackMessage.post_to('#general') do
 end
 ```
 
+### Testing
+
+You can do some basic testing against SlackMessage, at least if you use RSpec!
+You'll need to require and include the testing behavior like this, in your
+spec_helper file:
+
+```ruby
+require 'slack_message/rspec'
+
+RSpec.configure do |config|
+  include SlackMessage::RSpec
+
+  # your other config
+end
+```
+
+This will stop API calls for posting messages, and will allow you access to
+some custom matchers:
+
+```ruby
+expect {
+  SlackMessage.post_to('#general') { text "foo" }
+}.to post_slack_message_to('#general').with_content_matching(/foo/)
+```
+
+Be forewarned, I'm frankly not that great at more complicated RSpec matchers,
+so I'm guessing there are some bugs. Also, because the content of a message
+gets turned into a complex JSON object, matching against content isn't capable
+of very complicated regexes.
+
 Opinionated Stances
 ------------
 
