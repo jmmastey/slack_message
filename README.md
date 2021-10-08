@@ -237,6 +237,18 @@ some custom matchers:
 expect {
   SlackMessage.post_to('#general') { text "foo" }
 }.to post_slack_message_to('#general').with_content_matching(/foo/)
+
+expect {
+  SlackMessage.post_as(:schmoebot) { text "foo" }
+}.to post_slack_message_as(:schmoebot)
+
+expect {
+  SlackMessage.post_as(:schmoebot) { text "foo" }
+}.to post_slack_message_as('Schmoe Bot')
+ 
+expect {
+  SlackMessage.post_to('#general') { text "foo" }
+}.to post_to_slack
 ```
 
 Be forewarned, I'm frankly not that great at more complicated RSpec matchers,

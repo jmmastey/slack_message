@@ -2,8 +2,11 @@
 
 ## [Unreleased]
 
+## [1.8.1] - 2021-10-08
+- Cleaned that rspec code a bit, added more matchers for real world use.
+
 ## [1.8.0] - 2021-10-07
-- Added the ability to test in RSpec
+- Added the ability to test in RSpec.
 
 ## [1.7.1] - 2021-10-06
 - Fixed literally a syntax issue.

@@ -46,7 +46,7 @@ RSpec.describe SlackMessage do
 
     it "raises errors for missing configuration" do
       SlackMessage.configure do |config|
-        #config.api_token = "abc123"
+        config.api_token = nil
       end
 
       expect {
@@ -87,12 +87,36 @@ RSpec.describe SlackMessage do
       }.to post_slack_message_to('#general').with_content_matching(/foo/)
     end
 
-    it "is not stateful" do
+    it "resets state properly" do
       expect {
         SlackMessage.post_to('#general') { text "foo" }
       }.to post_slack_message_to('#general')
 
       expect { }.not_to post_slack_message_to('#general')
+    end
+
+    it "lets you assert by profile name" do
+      SlackMessage.configure do |config|
+        config.add_profile(:schmoebot, name: 'Schmoe', url: 'http://hooks.slack.com/1234/', default_channel: '#schmoes')
+      end
+
+      expect {
+        SlackMessage.post_as(:schmoebot) { text "foo" }
+      }.to post_slack_message_to('#schmoes')
+
+      expect {
+        SlackMessage.post_as(:schmoebot) { text "foo" }
+      }.to post_slack_message_as(:schmoebot)
+
+      expect {
+        SlackMessage.post_as(:schmoebot) { text "foo" }
+      }.to post_slack_message_as('Schmoe').with_content_matching(/foo/)
+    end
+
+    it "can assert more generally too tbh" do
+      expect {
+        SlackMessage.post_to('#general') { text "foo" }
+      }.to post_to_slack.with_content_matching(/foo/)
     end
   end
 end

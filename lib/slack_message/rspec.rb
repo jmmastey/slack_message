@@ -4,6 +4,15 @@ require 'rspec/mocks'
 # Honestly, this code is what happens when you do not understand the RSpec
 # custom expectation API really at all, but you really want to create your
 # matcher. This code is soo baaad.
+#
+# We override API calls by entirely replacing the low-level API method. Then we
+# use our overridden version to capture and record calls. When someone creates
+# a new expectation, an object is created, so we allow that object to register
+# itself to receive notification when a slack message _would have_ been posted.
+#
+# Then once the expectation is fulfilled, that class unregisters itself so that
+# it can be cleaned up properly.
+#
 
 module SlackMessage::RSpec
   extend RSpec::Matchers::DSL
@@ -31,6 +40,7 @@ module SlackMessage::RSpec
     end
   end
 
+  # w/ channel
   matcher :post_slack_message_to do |expected|
     match do |actual|
       @instance ||= PostTo.new
@@ -40,9 +50,50 @@ module SlackMessage::RSpec
       @instance.enforce_expectations
     end
 
-    chain :with_content_matching do |content_expectation|
+    chain :with_content_matching do |content|
       @instance ||= PostTo.new
-      @instance.with_content_matching(content_expectation)
+      @instance.with_content_matching(content)
+    end
+
+    failure_message { @instance.failure_message }
+    failure_message_when_negated { @instance.failure_message_when_negated }
+
+    supports_block_expectations
+  end
+
+  # no channel
+  matcher :post_to_slack do |expected|
+    match do |actual|
+      @instance ||= PostTo.new
+
+      actual.call
+      @instance.enforce_expectations
+    end
+
+    chain :with_content_matching do |content|
+      @instance ||= PostTo.new
+      @instance.with_content_matching(content)
+    end
+
+    failure_message { @instance.failure_message }
+    failure_message_when_negated { @instance.failure_message_when_negated }
+
+    supports_block_expectations
+  end
+
+  # name / profile matcher
+  matcher :post_slack_message_as do |expected|
+     match do |actual|
+      @instance ||= PostTo.new
+      @instance.with_profile(expected)
+
+      actual.call
+      @instance.enforce_expectations
+    end
+
+    chain :with_content_matching do |content|
+      @instance ||= PostTo.new
+      @instance.with_content_matching(content)
     end
 
     failure_message { @instance.failure_message }
@@ -54,8 +105,9 @@ module SlackMessage::RSpec
   class PostTo
     def initialize
       @captured_calls = []
-      @content_expectation = nil
+      @content = nil
       @channel = nil
+      @profile = nil
 
       SlackMessage::RSpec.register_expectation_listener(self)
     end
@@ -68,41 +120,49 @@ module SlackMessage::RSpec
       @channel = channel
     end
 
-    def with_content_matching(content_expectation)
-      raise ArgumentError unless content_expectation.is_a? Regexp
-      @content_expectation = content_expectation
+    def with_content_matching(content)
+      raise ArgumentError unless content.is_a? Regexp
+      @content = content
+    end
+
+    def with_profile(profile)
+      @profile = profile
     end
 
     def enforce_expectations
       SlackMessage::RSpec.unregister_expectation_listener(self)
-      matching_messages.any? { |msg| body_matches_expectation?(msg.fetch(:blocks)) }
-    end
 
-    def matching_messages
-      @captured_calls.select { |c| c[:channel] == @channel }
-    end
-
-    def body_matches_expectation?(sent)
-      return true unless @content_expectation
-
-      sent.to_s =~ @content_expectation
+      @captured_calls
+        .filter { |call| !@channel || call[:channel] == @channel }
+        .filter { |call| !@profile || [call[:profile], call[:username]].include?(@profile) }
+        .filter { |call| !@content || call.fetch(:blocks).to_s =~ @content }
+        .any?
     end
 
     def failure_message
-      if @content_expectation
-        "expected block to post slack message to '#{@channel}' with content matching #{@content_expectation.inspect}"
-      else
-        "expected block to post slack message to '#{@channel}'"
-      end
+      "expected block to #{failure_expression}"
     end
 
-    # TODO: does content_matching even make sense for negated test?
     def failure_message_when_negated
-      if @content_expectation
-        "expected block not to post slack message to '#{@channel}' with content matching #{@content_expectation.inspect}"
+      "expected block not to #{failure_expression}"
+    end
+
+    def failure_expression
+      concat = []
+
+      if @channel
+        concat << "post a slack message to '#{@channel}'"
+      elsif @profile
+        concat << "post a slack message as '#{@profile}'"
       else
-        "expected block not to post slack message to '#{@channel}'"
+        concat << "post a slack message"
       end
+
+      if @content
+        concat << "with content matching #{@content.inspect}"
+      end
+
+      concat.join " "
     end
   end
 end
