@@ -52,6 +52,10 @@ class SlackMessage::Dsl
   def context(text)
     finalize_default_section
 
+    if text == "" || text.nil?
+      raise ArgumentError, "tried to create a context block without a value"
+    end
+
     @body.push({ type: "context", elements: [{
       type: "mrkdwn", text: text
     }]})
@@ -110,6 +114,10 @@ class SlackMessage::Dsl
     end
 
     def text(msg)
+      if msg == "" || msg.nil?
+        raise ArgumentError, "tried to create text node without a value"
+      end
+
       if @body.include?(:text)
         @body[:text][:text] << "\n#{msg}"
 
@@ -119,14 +127,16 @@ class SlackMessage::Dsl
     end
 
     def ul(elements)
-      raise Arguments, "please pass an array" unless elements.respond_to?(:map)
+      raise ArgumentError, "please pass an array" unless elements.respond_to?(:map)
+
       text(
         elements.map { |text| "#{EMSPACE}• #{text}" }.join("\n")
       )
     end
 
     def ol(elements)
-      raise Arguments, "please pass an array" unless elements.respond_to?(:map)
+      raise ArgumentError, "please pass an array" unless elements.respond_to?(:map)
+
       text(
         elements.map.with_index(1) { |text, idx| "#{EMSPACE}#{idx}. #{text}" }.join("\n")
       )
@@ -186,6 +196,10 @@ class SlackMessage::Dsl
     end
 
     def list_item(title, value)
+      if value == "" || value.nil?
+        raise ArgumentError, "can't create a list item for '#{title}' without a value"
+      end
+
       @list.add(title, value)
     end
 

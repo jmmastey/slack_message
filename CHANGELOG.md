@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.9.0] - 2021-10-27
+- Add many validations so that trying to add e.g. empty text won't succeed.
+  Previously that would be accepted but return `invalid_blocks` from the API.
+
 ## [1.8.1] - 2021-10-08
 - Cleaned that rspec code a bit, added more matchers for real world use.
 
