@@ -30,13 +30,28 @@ module SlackMessage::RSpec
   FauxResponse = Struct.new(:code, :body)
 
   def self.included(_)
-    SlackMessage::Api.singleton_class.undef_method(:execute_post_form)
-    SlackMessage::Api.define_singleton_method(:execute_post_form) do |uri, params, profile|
+    SlackMessage::Api.singleton_class.undef_method(:post_message)
+    SlackMessage::Api.define_singleton_method(:post_message) do |profile, params|
       @@listeners.each do |listener|
-        listener.record_call(params.merge(profile: profile, uri: uri))
+        listener.record_call(params.merge(profile: profile))
       end
 
-      return FauxResponse.new('200', 'ok')
+      response = {"ok"=>true,
+       "channel"=>"D12345678",
+       "ts"=>"1635863996.002300",
+       "message"=>
+        {"type"=>"message", "subtype"=>"bot_message",
+        "text"=>"foo",
+        "ts"=>"1635863996.002300",
+        "username"=>"SlackMessage",
+        "icons"=>{"emoji"=>":successkid:"},
+        "bot_id"=>"B1234567890",
+        "blocks"=>
+        [{"type"=>"section",
+          "block_id"=>"hAh7",
+          "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}]}}
+
+      return FauxResponse.new('200', response.to_json)
     end
   end
 
@@ -102,12 +117,55 @@ module SlackMessage::RSpec
     supports_block_expectations
   end
 
+  # icon matcher
+  matcher :post_slack_message_with_icon do |expected|
+     match do |actual|
+      @instance ||= PostTo.new
+      @instance.with_icon(expected)
+
+      actual.call
+      @instance.enforce_expectations
+    end
+
+    chain :with_content_matching do |content|
+      @instance ||= PostTo.new
+      @instance.with_content_matching(content)
+    end
+
+    failure_message { @instance.failure_message }
+    failure_message_when_negated { @instance.failure_message_when_negated }
+
+    supports_block_expectations
+  end
+
+  matcher :post_slack_message_with_icon_matching do |expected|
+     match do |actual|
+      @instance ||= PostTo.new
+      @instance.with_icon_matching(expected)
+
+      actual.call
+      @instance.enforce_expectations
+    end
+
+    chain :with_content_matching do |content|
+      @instance ||= PostTo.new
+      @instance.with_content_matching(content)
+    end
+
+    failure_message { @instance.failure_message }
+    failure_message_when_negated { @instance.failure_message_when_negated }
+
+    supports_block_expectations
+  end
+
   class PostTo
     def initialize
       @captured_calls = []
       @content = nil
       @channel = nil
       @profile = nil
+      @icon = nil
+      @icon_matching = nil
 
       SlackMessage::RSpec.register_expectation_listener(self)
     end
@@ -118,6 +176,15 @@ module SlackMessage::RSpec
 
     def with_channel(channel)
       @channel = channel
+    end
+
+    def with_icon(icon)
+      @icon = icon
+    end
+
+    def with_icon_matching(icon)
+      raise ArgumentError unless icon.is_a? Regexp
+      @icon_matching = icon
     end
 
     def with_content_matching(content)
@@ -134,8 +201,10 @@ module SlackMessage::RSpec
 
       @captured_calls
         .filter { |call| !@channel || call[:channel] == @channel }
-        .filter { |call| !@profile || [call[:profile], call[:username]].include?(@profile) }
+        .filter { |call| !@profile || [call[:profile][:handle], call[:username]].include?(@profile) }
         .filter { |call| !@content || call.fetch(:blocks).to_s =~ @content }
+        .filter { |call| !@icon || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) == @icon }
+        .filter { |call| !@icon_matching || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) =~ @icon_matching }
         .any?
     end
 
@@ -154,6 +223,10 @@ module SlackMessage::RSpec
         concat << "post a slack message to '#{@channel}'"
       elsif @profile
         concat << "post a slack message as '#{@profile}'"
+      elsif @icon
+        concat << "post a slack message with icon '#{@icon}'"
+      elsif @icon_matching
+        concat << "post a slack message with icon matching '#{@icon_matching.inspect}'"
       else
         concat << "post a slack message"
       end

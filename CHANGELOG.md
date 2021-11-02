@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2021-11-01
+- Change to use Slack Apps for all profiles. This should allow growth toward
+  updating messages, working with interactive messages etc.
+- As a result, allow custom icons per profile / message.
+- When sending a message, the first `text` block is used for the notification
+  content. Should resolve "this content cannot be displayed".
+- Significant restructuring of README.
+
+## [2.0.0] - 2021-11-01
+- Yeah that was all broken.
+
 ## [1.9.0] - 2021-10-27
 - Add many validations so that trying to add e.g. empty text won't succeed.
   Previously that would be accepted but return `invalid_blocks` from the API.

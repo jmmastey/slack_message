@@ -1,5 +1,6 @@
 class SlackMessage::Dsl
-  attr_reader :body, :default_section, :custom_bot_name
+  attr_reader :body, :default_section, :custom_bot_name, :custom_bot_icon
+  attr_accessor :notification_text
 
   EMSPACE = " " # unicode emspace
 
@@ -9,8 +10,10 @@ class SlackMessage::Dsl
     @caller_self = eval("self", block.binding)
 
     @body = []
-    @default_section = Section.new
+    @default_section = Section.new(self)
     @custom_bot_name = nil
+    @custom_bot_icon = nil
+    @notification_text = nil
   end
 
   # allowable top-level entities within a block
@@ -18,7 +21,7 @@ class SlackMessage::Dsl
   def section(&block)
     finalize_default_section
 
-    section = Section.new.tap do |s|
+    section = Section.new(self).tap do |s|
       s.instance_eval(&block)
     end
 
@@ -82,6 +85,10 @@ class SlackMessage::Dsl
     @custom_bot_name = name
   end
 
+  def bot_icon(icon)
+    @custom_bot_icon = icon
+  end
+
   # end bot name
 
   def render
@@ -102,13 +109,14 @@ class SlackMessage::Dsl
       @body.push(default_section.render)
     end
 
-    @default_section = Section.new
+    @default_section = Section.new(self)
   end
 
   class Section
     attr_reader :body
 
-    def initialize
+    def initialize(parent)
+      @parent = parent
       @body = { type: "section" }
       @list = List.new
     end
@@ -213,6 +221,11 @@ class SlackMessage::Dsl
 
     def render
       body[:fields] = @list.render if @list.any?
+
+      if body[:text] && body[:text][:text] && !@parent.notification_text
+        @parent.notification_text = body[:text][:text]
+      end
+
       body
     end
   end

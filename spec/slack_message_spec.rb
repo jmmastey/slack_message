@@ -2,13 +2,23 @@ require 'spec_helper'
 
 RSpec.describe SlackMessage do
   describe "API convenience" do
+    before do
+      SlackMessage.configure do |config|
+        config.add_profile(name: 'default profile', api_token: 'abc123')
+      end
+    end
+
+    after do
+      SlackMessage.configuration.reset
+    end
+
     it "can grab user IDs" do
-      SlackMessage.configure { |c| c.api_token = "asdf" }
+      profile = SlackMessage::Configuration.profile(:default)
       allow(Net::HTTP).to receive(:start).and_return(
         double(code: "200", body: '{ "user": { "id": "ABC123" }}')
       )
 
-      result = SlackMessage.user_id_for("hello@joemastey.com")
+      result = SlackMessage::Api.user_id_for("hello@joemastey.com", profile)
       expect(result).to eq("ABC123")
     end
   end
@@ -36,28 +46,10 @@ RSpec.describe SlackMessage do
       SlackMessage.configuration.reset
     end
 
-    it "allows you to set an API key" do
-      SlackMessage.configure do |config|
-        config.api_token = "abc123"
-      end
-
-      expect(SlackMessage.configuration.api_token).to eq("abc123")
-    end
-
-    it "raises errors for missing configuration" do
-      SlackMessage.configure do |config|
-        config.api_token = nil
-      end
-
-      expect {
-        SlackMessage.configuration.api_token
-      }.to raise_error(ArgumentError)
-    end
-
     it "lets you add and fetch profiles" do
       SlackMessage.configure do |config|
-        config.add_profile(name: 'default profile', url: 'http://hooks.slack.com/1234/')
-        config.add_profile(:nonstandard, name: 'another profile', url: 'http://hooks.slack.com/1234/')
+        config.add_profile(name: 'default profile', api_token: 'abc123')
+        config.add_profile(:nonstandard, name: 'another profile', api_token: 'abc123')
       end
 
       expect(SlackMessage.configuration.profile(:default)[:name]).to eq('default profile')
@@ -73,7 +65,7 @@ RSpec.describe SlackMessage do
     before do
       SlackMessage.configure do |config|
         config.clear_profiles!
-        config.add_profile(name: 'default profile', url: 'http://hooks.slack.com/1234/')
+        config.add_profile(name: 'default profile', api_token: 'abc123')
       end
     end
 
@@ -97,7 +89,8 @@ RSpec.describe SlackMessage do
 
     it "lets you assert by profile name" do
       SlackMessage.configure do |config|
-        config.add_profile(:schmoebot, name: 'Schmoe', url: 'http://hooks.slack.com/1234/', default_channel: '#schmoes')
+        config.clear_profiles!
+        config.add_profile(:schmoebot, name: 'Schmoe', api_token: 'abc123', icon: ':schmoebot:', default_channel: '#schmoes')
       end
 
       expect {
@@ -111,6 +104,35 @@ RSpec.describe SlackMessage do
       expect {
         SlackMessage.post_as(:schmoebot) { text "foo" }
       }.to post_slack_message_as('Schmoe').with_content_matching(/foo/)
+    end
+
+    it "lets you assert by profile image" do
+      SlackMessage.configure do |config|
+        config.clear_profiles!
+        config.add_profile(:schmoebot, name: 'Schmoe', api_token: 'abc123', icon: ':schmoebot:', default_channel: '#schmoes')
+      end
+
+      expect {
+        SlackMessage.post_as(:schmoebot) { text "foo" }
+      }.to post_slack_message_with_icon(':schmoebot:')
+
+      expect {
+        SlackMessage.post_as(:schmoebot) do
+          bot_icon ':schmalternate:'
+          text "foo"
+        end
+      }.to post_slack_message_with_icon(':schmalternate:')
+
+      expect {
+        SlackMessage.post_as(:schmoebot) do
+          bot_icon 'https://thispersondoesnotexist.com/image'
+          text "foo"
+        end
+      }.to post_slack_message_with_icon_matching(/thisperson/)
+    end
+
+    it "lets you assert notification text" do
+      # TODO :|
     end
 
     it "can assert more generally too tbh" do
