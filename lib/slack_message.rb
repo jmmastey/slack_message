@@ -3,6 +3,9 @@ module SlackMessage
   require 'slack_message/api'
   require 'slack_message/configuration'
 
+  EMAIL_TAG_PATTERN = /<[^@ \t\r\n\<]+@[^@ \t\r\n]+\.[^@ \t\r\n]+>/
+  EMAIL_PATTERN = /^\S{1,}@\S{2,}\.\S{2,}$/
+
   class ApiError < RuntimeError; end
 
   def self.configuration
@@ -25,7 +28,7 @@ module SlackMessage
       instance.instance_eval(&block)
     end
 
-    target  = Api::user_id_for(target, profile) if target =~ /^\S{1,}@\S{2,}\.\S{2,}$/
+    target  = Api::user_id_for(target, profile) if target =~ EMAIL_PATTERN
 
     Api.post(payload, target, profile)
   end
@@ -41,7 +44,7 @@ module SlackMessage
     end
 
     target  = profile[:default_channel]
-    target  = Api::user_id_for(target, profile) if target =~ /^\S{1,}@\S{2,}\.\S{2,}$/
+    target  = Api::user_id_for(target, profile) if target =~ EMAIL_PATTERN
 
     Api.post(payload, target, profile)
   end

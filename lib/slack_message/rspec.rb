@@ -30,7 +30,7 @@ module SlackMessage::RSpec
   FauxResponse = Struct.new(:code, :body)
 
   def self.included(_)
-    SlackMessage::Api.singleton_class.undef_method(:post_message)
+    SlackMessage::Api.undef_method(:post_message)
     SlackMessage::Api.define_singleton_method(:post_message) do |profile, params|
       @@listeners.each do |listener|
         listener.record_call(params.merge(profile: profile))
@@ -51,6 +51,12 @@ module SlackMessage::RSpec
           "block_id"=>"hAh7",
           "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}]}}
 
+      return FauxResponse.new('200', response.to_json)
+    end
+
+    SlackMessage::Api.undef_method(:look_up_user_by_email)
+    SlackMessage::Api.define_singleton_method(:look_up_user_by_email) do |email, profile|
+      response = {"ok"=>true, "user"=>{"id"=>"U5432CBA"}}
       return FauxResponse.new('200', response.to_json)
     end
   end

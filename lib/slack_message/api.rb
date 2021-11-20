@@ -2,17 +2,15 @@ require 'net/http'
 require 'net/https'
 require 'json'
 
-class SlackMessage::Api
-  def self.user_id_for(email, profile)
-    uri = URI("https://slack.com/api/users.lookupByEmail?email=#{email}")
-    request = Net::HTTP::Get.new(uri).tap do |req|
-      req['Authorization']  = "Bearer #{profile[:api_token]}"
-      req['Content-type']   = "application/json; charset=utf-8"
+module SlackMessage::Api
+  extend self
+
+  def user_id_for(email, profile)
+    unless email =~ SlackMessage::EMAIL_PATTERN
+      raise ArgumentError, "Tried to find profile by invalid email address '#{email}'"
     end
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(request)
-    end
+    response = look_up_user_by_email(email, profile)
 
     if response.code != "200"
       raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
@@ -37,7 +35,7 @@ class SlackMessage::Api
     payload["user"]["id"]
   end
 
-  def self.post(payload, target, profile)
+  def post(payload, target, profile)
     params  = {
       channel: target,
       username: payload.custom_bot_name || profile[:name],
@@ -80,8 +78,23 @@ class SlackMessage::Api
     response
   end
 
-  # mostly test harness
-  def self.post_message(profile, params)
+  private
+
+  # mostly for test harnesses
+
+  def look_up_user_by_email(email, profile)
+    uri = URI("https://slack.com/api/users.lookupByEmail?email=#{email}")
+    request = Net::HTTP::Get.new(uri).tap do |req|
+      req['Authorization']  = "Bearer #{profile[:api_token]}"
+      req['Content-type']   = "application/json; charset=utf-8"
+    end
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+  end
+
+  def post_message(profile, params)
     uri = URI("https://slack.com/api/chat.postMessage")
     request = Net::HTTP::Post.new(uri).tap do |req|
       req['Authorization']  = "Bearer #{profile[:api_token]}"
@@ -93,6 +106,4 @@ class SlackMessage::Api
       http.request(request)
     end
   end
-
-  private_class_method :post_message
 end

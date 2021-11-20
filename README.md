@@ -15,19 +15,21 @@ end
 
 To install, just add `slack_message` to your bundle and you're ready to go.
 
-Opinionated Stances
-------------
+#### Opinionated Stances
 
 Slack's API has a lot of options available to you! But this gem takes some
-opinionated stances on how to make use of that API. For instance:
+opinionated stances about usage to try to minimize the pain of integrating
+with it. For example:
 
-* No dependencies. Your lockfile is enough of a mess already.
+* SlackMessage has no dependencies. Your lockfile is enough of a mess already.
+* The code to build a message should look a lot like the message itself. Code
+  that is simple to read and understand is a priority.
 * Webhooks are passé. Only Slack Apps are supported now.
 * Unless you request otherwise, text is always rendered using `mrkdwn`. If you
   want plaintext, you'll need to ask for it. Same for the `emoji` flag.
 * As many API semantics as possible are hidden. For instance, if you post to
-  something that looks like an email address, `slack_message` is going to try to
-  look it up as an email address.
+  something that looks like an email address, `slack_message` is going to try
+  to look it up as an email address.
 * A few little hacks on the block syntax, such as adding a `blank_line` (which
   doesn't exist in the API), or leading spaces.
 * Configuration is kept as simple as possible. But, as much heavy lifting as
@@ -173,9 +175,7 @@ It's just as easy to send messages directly to users. SlackMessage will look for
 targets that are email-addressish, and look them up for you automatically:
 
 ```ruby
-user_email = 'hello@joemastey.com'
-
-SlackMessage.post_to(user_email) do
+SlackMessage.post_to('hello@joemastey.com') do
   text "You specifically did it! :thumbsup:"
 end
 ```
@@ -207,15 +207,13 @@ SlackMessage.post_to('#general') do
     text "See more here: #{link('result', 'https://google.com')}"
   end
 
-  text ":rocketship: hello@joemastey.com"
+  text ":rocketship: <hello@joemastey.com>"
 
   context ":custom_slack_emoji: An example footer *with some markdown*."
 end
 ```
 
 SlackMessage will compose this into Block Kit syntax and send it on its way!
-For now you'll need to read a bit of the source code to get the entire API. Sorry,
-working on it.
 
 If you've defined multiple profiles in configuration, you can specify which to
 use for your message by specifying its name:
@@ -223,6 +221,7 @@ use for your message by specifying its name:
 ```ruby
 SlackMessage.post_to('#general', as: :sidekiq_bot) do
   text ":octagonal_sign: A job has failed permanently and needs to be rescued."
+
   link_button "Sidekiq Dashboard", sidekiq_dashboard_url, style: :danger
 end
 ```
@@ -261,16 +260,16 @@ SlackMessage.post_to('#general') do
 end
 ```
 
-Emails that are not wrapped in tags will be rendered as normal clickable email
-addresses. Additionally, Slack will automatically convert a number of channel
-names and tags you're probably already used to:
+Emails that are not wrapped in tags will be rendered as normal email addresses.
+Additionally, Slack will automatically convert a number of channel names and
+tags you're probably already used to:
 
 ```ruby
 SlackMessage.post_to('#general') do
   bot_name "CoffeeBot"
   bot_icon ":coffee:"
 
-  text "@here there's no coffee left!"
+  text "@here There's no coffee left! Let #general know when you fix it."
 end
 ```
 
@@ -303,8 +302,8 @@ RSpec.configure do |config|
 end
 ```
 
-This will stop API calls for posting messages, and will allow you access to
-some custom matchers:
+This will prevent API calls from leaking in your tests, and will allow you
+access to some custom matchers:
 
 ```ruby
 expect {
@@ -340,12 +339,12 @@ of very complicated regexes.
 What it Doesn't Do
 ------------
 
-This gem is intended to stay fairly simple. Other gems have lots of config
-options and abilities, which is wonderful, but overall complicates usage. If
-you want to add a feature, open an issue on Github first to see if it's likely
-to be merged. This gem was built out of an existing need that _didn't_ include
-most of the block API, but I'd be inclined to merge features that sustainably
-expand the DSL to include more useful features.
+This gem is intended to stay simple. Other Slack gems have lots of config
+options and abilities, which makes them powerful, but makes them a pain to use.
+If you want to add a feature, open an issue on Github first to see if it's
+likely to be merged. This gem was built out of an existing need that _didn't_
+include all of the block API, but I'd be inclined to merge features that
+sustainably expand the DSL to include more useful features.
 
 Some behaviors that are still planned but not yet added:
 
@@ -357,6 +356,7 @@ Some behaviors that are still planned but not yet added:
 * multiple recipients
 * more interesting return types for your message
 * richer text formatting (for instance, `ul` is currently a hack)
+* more and better organized testing capability
 
 Contributing
 ------------

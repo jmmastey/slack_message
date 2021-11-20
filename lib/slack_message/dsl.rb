@@ -2,7 +2,7 @@ class SlackMessage::Dsl
   attr_reader :body, :default_section, :custom_bot_name, :custom_bot_icon, :profile
   attr_accessor :custom_notification
 
-  EMSPACE = " " # unicode emspace
+  EMSPACE = " " # unicode emspace, Slack won't compress this
 
   def initialize(block, profile)
     # Delegate missing methods to caller scope. Thanks 2008:
@@ -108,11 +108,9 @@ class SlackMessage::Dsl
     @caller_self.send meth, *args, &blk
   end
 
-  EMAIL_TAG_PATTERN = /<[^@ \t\r\n\<]+@[^@ \t\r\n]+\.[^@ \t\r\n]+>/
-
   # replace emails w/ real user IDs
   def enrich_text(text_body)
-    text_body.scan(EMAIL_TAG_PATTERN).each do |email_tag|
+    text_body.scan(SlackMessage::EMAIL_TAG_PATTERN).each do |email_tag|
       raw_email = email_tag.gsub(/[><]/, '')
       user_id   = SlackMessage::Api::user_id_for(raw_email, profile)
 

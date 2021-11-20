@@ -132,15 +132,6 @@ RSpec.describe SlackMessage do
       end
     end
 
-    it "can grab user IDs" do
-      allow(Net::HTTP).to receive(:start).and_return(
-        double(code: "200", body: '{ "user": { "id": "ABC123" }}')
-      )
-
-      result = SlackMessage::Api.user_id_for("hello@joemastey.com", profile)
-      expect(result).to eq("ABC123")
-    end
-
     it "converts user IDs within text when tagged properly" do
       allow(SlackMessage::Api).to receive(:user_id_for).and_return('ABC123')
 

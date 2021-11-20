@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.1] - 2021-11-20
+- Trying to fetch user ID for a string that isn't email-like raises an error.
+- In tests, fetching user IDs is mocked out to prevent network requests.
+- Tightened up and clarified README.
+- Some internal cleanup and restructuring of modules.
+
 ## [2.2.0] - 2021-11-20
 - When sending text, it is now possible to mention users and have their user
   IDs automatically converted using `<email@email.com>` within text nodes.
