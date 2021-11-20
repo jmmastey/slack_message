@@ -15,21 +15,23 @@ class SlackMessage::Api
     end
 
     if response.code != "200"
-      raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
+      raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     elsif response.body == ""
-      raise "Received empty 200 response from Slack when looking up user info. Check your API key."
+      raise SlackMessage::ApiError, "Received empty 200 response from Slack when looking up user info. Check your API key."
     end
 
     begin
       payload = JSON.parse(response.body)
     rescue
-      raise "Unable to parse JSON response from Slack API\n#{response.body}"
+      raise SlackMessage::ApiError, "Unable to parse JSON response from Slack API\n#{response.body}"
     end
 
     if payload.include?("error") && payload["error"] == "invalid_auth"
-      raise "Received an error because your authentication token isn't properly configured:\n#{response.body}"
+      raise SlackMessage::ApiError, "Received an error because your authentication token isn't properly configured."
+    elsif payload.include?("error") && payload["error"] == "users_not_found"
+      raise SlackMessage::ApiError, "Couldn't find a user with the email '#{email}'."
     elsif payload.include?("error")
-      raise "Received error response from Slack during user lookup:\n#{response.body}"
+      raise SlackMessage::ApiError, "Received error response from Slack during user lookup:\n#{response.body}"
     end
 
     payload["user"]["id"]
@@ -40,8 +42,12 @@ class SlackMessage::Api
       channel: target,
       username: payload.custom_bot_name || profile[:name],
       blocks: payload.render,
-      text: payload.notification_text,
+      text: payload.custom_notification,
     }
+
+    if params[:blocks].length == 0
+      raise ArgumentError, "Tried to send an entirely empty message."
+    end
 
     icon = payload.custom_bot_icon || profile[:icon]
     if icon =~ /^:\w+:$/
@@ -58,17 +64,17 @@ class SlackMessage::Api
 
     # let's try to be helpful about error messages
     if ["token_revoked", "token_expired", "invalid_auth", "not_authed"].include?(error)
-      raise "Couldn't send slack message because the API key for profile '#{profile[:handle]}' is wrong."
+      raise SlackMessage::ApiError, "Couldn't send slack message because the API key for profile '#{profile[:handle]}' is wrong."
     elsif ["no_permission", "ekm_access_denied"].include?(error)
-      raise "Couldn't send slack message because the API key for profile '#{profile[:handle]}' isn't allowed to post messages."
+      raise SlackMessage::ApiError, "Couldn't send slack message because the API key for profile '#{profile[:handle]}' isn't allowed to post messages."
     elsif error == "channel_not_found"
-      raise "Tried to send Slack message to non-existent channel or user '#{target}'"
+      raise SlackMessage::ApiError, "Tried to send Slack message to non-existent channel or user '#{target}'"
     elsif error == "invalid_arguments"
-      raise "Tried to send Slack message with invalid payload."
+      raise SlackMessage::ApiError, "Tried to send Slack message with invalid payload."
     elsif response.code == "302"
-      raise "Got 302 response while posting to Slack. Check your API key for profile '#{profile[:handle]}'."
+      raise SlackMessage::ApiError, "Got 302 response while posting to Slack. Check your API key for profile '#{profile[:handle]}'."
     elsif response.code != "200"
-      raise "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
+      raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     end
 
     response

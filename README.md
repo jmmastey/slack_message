@@ -30,8 +30,8 @@ opinionated stances on how to make use of that API. For instance:
   look it up as an email address.
 * A few little hacks on the block syntax, such as adding a `blank_line` (which
   doesn't exist in the API), or leading spaces.
-* Configuration should be as simple as possible. But as much work as possible
-  should be moved from callers into configuration.
+* Configuration is kept as simple as possible. But, as much heavy lifting as
+  possible should occur just once via configuration and not on every call.
 
 Usage
 ------------
@@ -238,6 +238,55 @@ SlackMessage.post_to('#general') do
 end
 ```
 
+#### Notifying Users
+
+There are several supported ways to tag and notify users. Mentioned above, it's
+possible to DM a user by email:
+
+```ruby
+SlackMessage.post_to('hello@joemastey.com') do
+  text "Hi there!"
+end
+```
+
+You can also mention a user by email within a channel by wrapping their name
+in tags:
+
+```ruby
+SlackMessage.post_to('#general') do
+  bot_name "CoffeeBot"
+  bot_icon ":coffee:"
+
+  text ":coffee: It's your turn to make coffee <hello@joemastey.com>."
+end
+```
+
+Emails that are not wrapped in tags will be rendered as normal clickable email
+addresses. Additionally, Slack will automatically convert a number of channel
+names and tags you're probably already used to:
+
+```ruby
+SlackMessage.post_to('#general') do
+  bot_name "CoffeeBot"
+  bot_icon ":coffee:"
+
+  text "@here there's no coffee left!"
+end
+```
+
+By default, the desktop notification for a message will be the text of the 
+message itself. However, you can customize desktop notifications if you prefer:
+
+```ruby
+SlackMessage.post_to('hello@joemastey.com') do
+  bot_name "CoffeeBot"
+  bot_icon ":coffee:"
+
+  notification_text "It's a coffee emergency!"
+  text "There's no coffee left!"
+end
+```
+
 ### Testing
 
 You can do some basic testing against SlackMessage, at least if you use RSpec!
@@ -301,12 +350,12 @@ expand the DSL to include more useful features.
 Some behaviors that are still planned but not yet added:
 
 * some API documentation amirite?
-* allow custom http_options in configuration
+* custom http_options in configuration
 * more of BlockKit's options
-* any interactive elements at all (I don't understand them yet)
+* any interactive elements at all
 * editing / updating messages
 * multiple recipients
-* more interesting return types for your message (probably related to the above)
+* more interesting return types for your message
 * richer text formatting (for instance, `ul` is currently a hack)
 
 Contributing

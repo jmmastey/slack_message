@@ -1,31 +1,14 @@
 require 'spec_helper'
 
 RSpec.describe SlackMessage do
-  describe "API convenience" do
-    before do
-      SlackMessage.configure do |config|
-        config.add_profile(name: 'default profile', api_token: 'abc123')
-      end
-    end
-
-    after do
-      SlackMessage.configuration.reset
-    end
-
-    it "can grab user IDs" do
-      profile = SlackMessage::Configuration.profile(:default)
-      allow(Net::HTTP).to receive(:start).and_return(
-        double(code: "200", body: '{ "user": { "id": "ABC123" }}')
-      )
-
-      result = SlackMessage::Api.user_id_for("hello@joemastey.com", profile)
-      expect(result).to eq("ABC123")
-    end
-  end
-
   describe "DSL" do
     describe "#build" do
       it "renders some JSON" do
+        SlackMessage.configure do |config|
+          config.clear_profiles!
+          config.add_profile(name: 'default profile', api_token: 'abc123')
+        end
+
         expected_output = [
           { type: "section",
             text: { text: "foo", type: "mrkdwn" }
@@ -42,12 +25,9 @@ RSpec.describe SlackMessage do
   end
 
   describe "configuration" do
-    after do
-      SlackMessage.configuration.reset
-    end
-
     it "lets you add and fetch profiles" do
       SlackMessage.configure do |config|
+        config.clear_profiles!
         config.add_profile(name: 'default profile', api_token: 'abc123')
         config.add_profile(:nonstandard, name: 'another profile', api_token: 'abc123')
       end
@@ -139,6 +119,45 @@ RSpec.describe SlackMessage do
       expect {
         SlackMessage.post_to('#general') { text "foo" }
       }.to post_to_slack.with_content_matching(/foo/)
+    end
+  end
+
+  describe "API convenience" do
+    let(:profile) { SlackMessage::Configuration.profile(:default) }
+
+    before do
+      SlackMessage.configure do |config|
+        config.clear_profiles!
+        config.add_profile(name: 'default profile', api_token: 'abc123')
+      end
+    end
+
+    it "can grab user IDs" do
+      allow(Net::HTTP).to receive(:start).and_return(
+        double(code: "200", body: '{ "user": { "id": "ABC123" }}')
+      )
+
+      result = SlackMessage::Api.user_id_for("hello@joemastey.com", profile)
+      expect(result).to eq("ABC123")
+    end
+
+    it "converts user IDs within text when tagged properly" do
+      allow(SlackMessage::Api).to receive(:user_id_for).and_return('ABC123')
+
+      expect {
+        SlackMessage.post_to('#general') { text("Working: <hello@joemastey.com> ") }
+      }.to post_to_slack.with_content_matching(/ABC123/)
+
+      expect {
+        SlackMessage.post_to('#general') { text("Not Tagged: hello@joemastey.com ") }
+      }.to post_to_slack.with_content_matching(/hello@joemastey.com/)
+
+
+      allow(SlackMessage::Api).to receive(:user_id_for).and_raise(SlackMessage::ApiError)
+
+      expect {
+        SlackMessage.post_to('#general') { text("Not User: <nuffin@nuffin.nuffin>") }
+      }.to post_to_slack.with_content_matching(/\<nuffin@nuffin.nuffin\>/)
     end
   end
 end

@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [2.2.0] - 2021-11-20
+- When sending text, it is now possible to mention users and have their user
+  IDs automatically converted using `<email@email.com>` within text nodes.
+- It's now possible to override notification text.
+- Errors received from the Slack API now raise `SlackMessage::ApiError`.
+- Re-exposed a top-level method for getting user IDs, `SlackMessage.user_id`.
+- Raising some better errors when no message payload is present.
+- Using `build` now requires a profile, so configuration must exist.
 
 ## [2.1.0] - 2021-11-01
 - Change to use Slack Apps for all profiles. This should allow growth toward

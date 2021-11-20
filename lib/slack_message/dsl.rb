@@ -1,19 +1,21 @@
 class SlackMessage::Dsl
-  attr_reader :body, :default_section, :custom_bot_name, :custom_bot_icon
-  attr_accessor :notification_text
+  attr_reader :body, :default_section, :custom_bot_name, :custom_bot_icon, :profile
+  attr_accessor :custom_notification
 
   EMSPACE = " " # unicode emspace
 
-  def initialize(block)
+  def initialize(block, profile)
     # Delegate missing methods to caller scope. Thanks 2008:
     # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
     @caller_self = eval("self", block.binding)
 
-    @body = []
-    @default_section = Section.new(self)
-    @custom_bot_name = nil
-    @custom_bot_icon = nil
-    @notification_text = nil
+    @body             = []
+    @profile          = profile
+    @default_section  = Section.new(self)
+
+    @custom_bot_name      = nil
+    @custom_bot_icon      = nil
+    @custom_notification  = nil
   end
 
   # allowable top-level entities within a block
@@ -56,8 +58,10 @@ class SlackMessage::Dsl
     finalize_default_section
 
     if text == "" || text.nil?
-      raise ArgumentError, "tried to create a context block without a value"
+      raise ArgumentError, "Cannot create a context block without a value."
     end
+
+    text = self.enrich_text(text)
 
     @body.push({ type: "context", elements: [{
       type: "mrkdwn", text: text
@@ -79,7 +83,7 @@ class SlackMessage::Dsl
 
   # end delegation
 
-  # custom bot name
+  # bot / notification overrides
 
   def bot_name(name)
     @custom_bot_name = name
@@ -87,6 +91,10 @@ class SlackMessage::Dsl
 
   def bot_icon(icon)
     @custom_bot_icon = icon
+  end
+
+  def notification_text(msg)
+    @custom_notification = msg
   end
 
   # end bot name
@@ -98,6 +106,22 @@ class SlackMessage::Dsl
 
   def method_missing(meth, *args, &blk)
     @caller_self.send meth, *args, &blk
+  end
+
+  EMAIL_TAG_PATTERN = /<[^@ \t\r\n\<]+@[^@ \t\r\n]+\.[^@ \t\r\n]+>/
+
+  # replace emails w/ real user IDs
+  def enrich_text(text_body)
+    text_body.scan(EMAIL_TAG_PATTERN).each do |email_tag|
+      raw_email = email_tag.gsub(/[><]/, '')
+      user_id   = SlackMessage::Api::user_id_for(raw_email, profile)
+
+      text_body.gsub!(email_tag, "<@#{user_id}>") if user_id
+    rescue SlackMessage::ApiError => e
+      # swallow errors for not-found users
+    end
+
+    text_body
   end
 
   private
@@ -123,8 +147,10 @@ class SlackMessage::Dsl
 
     def text(msg)
       if msg == "" || msg.nil?
-        raise ArgumentError, "tried to create text node without a value"
+        raise ArgumentError, "Cannot create a text node without a value."
       end
+
+      msg = @parent.enrich_text(msg)
 
       if @body.include?(:text)
         @body[:text][:text] << "\n#{msg}"
@@ -135,19 +161,21 @@ class SlackMessage::Dsl
     end
 
     def ul(elements)
-      raise ArgumentError, "please pass an array" unless elements.respond_to?(:map)
+      raise ArgumentError, "Please pass an array when creating a ul." unless elements.respond_to?(:map)
 
-      text(
-        elements.map { |text| "#{EMSPACE}• #{text}" }.join("\n")
-      )
+      msg = elements.map { |text| "#{EMSPACE}• #{text}" }.join("\n")
+      msg = @parent.enrich_text(msg)
+
+      text(msg)
     end
 
     def ol(elements)
-      raise ArgumentError, "please pass an array" unless elements.respond_to?(:map)
+      raise ArgumentError, "Please pass an array when creating an ol." unless elements.respond_to?(:map)
 
-      text(
-        elements.map.with_index(1) { |text, idx| "#{EMSPACE}#{idx}. #{text}" }.join("\n")
-      )
+      msg = elements.map.with_index(1) { |text, idx| "#{EMSPACE}#{idx}. #{text}" }.join("\n")
+      msg = @parent.enrich_text(msg)
+
+      text(msg)
     end
 
     # styles:  default, primary, danger
@@ -205,9 +233,10 @@ class SlackMessage::Dsl
 
     def list_item(title, value)
       if value == "" || value.nil?
-        raise ArgumentError, "can't create a list item for '#{title}' without a value"
+        raise ArgumentError, "Can't create a list item for '#{title}' without a value."
       end
 
+      value = @parent.enrich_text(value)
       @list.add(title, value)
     end
 
@@ -220,10 +249,14 @@ class SlackMessage::Dsl
     end
 
     def render
+      unless has_content?
+        raise ArgumentError, "Can't create a section with no content."
+      end
+
       body[:fields] = @list.render if @list.any?
 
-      if body[:text] && body[:text][:text] && !@parent.notification_text
-        @parent.notification_text = body[:text][:text]
+      if body[:text] && body[:text][:text] && !@parent.custom_notification
+        @parent.notification_text(body[:text][:text])
       end
 
       body
