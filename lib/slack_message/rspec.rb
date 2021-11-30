@@ -206,11 +206,11 @@ module SlackMessage::RSpec
       SlackMessage::RSpec.unregister_expectation_listener(self)
 
       @captured_calls
-        .filter { |call| !@channel || call[:channel] == @channel }
-        .filter { |call| !@profile || [call[:profile][:handle], call[:username]].include?(@profile) }
-        .filter { |call| !@content || call.fetch(:blocks).to_s =~ @content }
-        .filter { |call| !@icon || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) == @icon }
-        .filter { |call| !@icon_matching || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) =~ @icon_matching }
+        .select { |call| !@channel || call[:channel] == @channel }
+        .select { |call| !@profile || [call[:profile][:handle], call[:username]].include?(@profile) }
+        .select { |call| !@content || call.fetch(:blocks).to_s =~ @content }
+        .select { |call| !@icon || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) == @icon }
+        .select { |call| !@icon_matching || call.fetch(:icon_emoji, call.fetch(:icon_url, '')) =~ @icon_matching }
         .any?
     end
 

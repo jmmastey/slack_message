@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.3.1] - 2021-11-30
+- Adjust that minimum version by changing some syntax to older styles. Given
+  support for ruby 2.4 ended almost 2 years ago, going to go ahead and leave
+  it behind.
+
 ## [2.3.0] - 2021-11-30
 - Formally require minimum version of ruby. It wouldn't have worked anyway,
   but worth actually specifying.

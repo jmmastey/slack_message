@@ -142,13 +142,19 @@ RSpec.describe SlackMessage do
       expect {
         SlackMessage.post_to('#general') { text("Not Tagged: hello@joemastey.com ") }
       }.to post_to_slack.with_content_matching(/hello@joemastey.com/)
+    end
 
-
-      allow(SlackMessage::Api).to receive(:user_id_for).and_raise(SlackMessage::ApiError)
+    it "is graceful about those failures" do
+      allow(SlackMessage::Api).to receive(:user_id_for).with('nuffin@nuffin.nuffin', any_args).and_raise(SlackMessage::ApiError)
+      allow(SlackMessage::Api).to receive(:user_id_for).with('hello@joemastey.com', any_args).and_return('ABC123')
 
       expect {
         SlackMessage.post_to('#general') { text("Not User: <nuffin@nuffin.nuffin>") }
       }.to post_to_slack.with_content_matching(/\<nuffin@nuffin.nuffin\>/)
+
+      expect {
+        SlackMessage.post_to('#general') { text("Not User: <nuffin@nuffin.nuffin>, User: <hello@joemastey.com>") }
+      }.to post_to_slack.with_content_matching(/ABC123/)
     end
   end
 end
