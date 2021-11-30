@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.2.2] - 2021-11-30
+- Add github workflow for automatic CI runs. Stolen from another project.
+
 ## [2.2.1] - 2021-11-20
 - Trying to fetch user ID for a string that isn't email-like raises an error.
 - In tests, fetching user IDs is mocked out to prevent network requests.
