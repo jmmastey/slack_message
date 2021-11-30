@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.3.0] - 2021-11-30
+- Formally require minimum version of ruby. It wouldn't have worked anyway,
+  but worth actually specifying.
+
 ## [2.2.2] - 2021-11-30
 - Add github workflow for automatic CI runs. Stolen from another project.
 

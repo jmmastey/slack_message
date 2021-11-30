@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'slack_message'
-  gem.version     = "2.2.2"
+  gem.version     = "2.3.0"
   gem.summary     = "A nice DSL for composing rich messages in Slack"
   gem.authors     = ["Joe Mastey"]
   gem.email       = 'hello@joemastey.com'
@@ -17,6 +17,8 @@ Gem::Specification.new do |gem|
     "changelog_uri"   => "https://github.com/jmmastey/slack_message/blob/master/CHANGELOG.md",
     "source_code_uri" => "http://github.com/jmmastey/slack_message",
   }
+
+  gem.required_ruby_version = '>= 2.6.0'
 
   gem.add_development_dependency "rspec", "3.10.0"
   gem.add_development_dependency "pry", "0.14.1"
