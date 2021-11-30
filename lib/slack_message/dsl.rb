@@ -111,12 +111,14 @@ class SlackMessage::Dsl
   # replace emails w/ real user IDs
   def enrich_text(text_body)
     text_body.scan(SlackMessage::EMAIL_TAG_PATTERN).each do |email_tag|
-      raw_email = email_tag.gsub(/[><]/, '')
-      user_id   = SlackMessage::Api::user_id_for(raw_email, profile)
+      begin
+        raw_email = email_tag.gsub(/[><]/, '')
+        user_id   = SlackMessage::Api::user_id_for(raw_email, profile)
 
-      text_body.gsub!(email_tag, "<@#{user_id}>") if user_id
-    rescue SlackMessage::ApiError => e
-      # swallow errors for not-found users
+        text_body.gsub!(email_tag, "<@#{user_id}>") if user_id
+      rescue SlackMessage::ApiError => e
+        # swallow errors for not-found users
+      end
     end
 
     text_body
