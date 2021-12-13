@@ -35,7 +35,7 @@ module SlackMessage::Api
     payload["user"]["id"]
   end
 
-  def post(payload, target, profile)
+  def post(payload, target, profile, time)
     params  = {
       channel: target,
       username: payload.custom_bot_name || profile[:name],
@@ -54,6 +54,18 @@ module SlackMessage::Api
       params[:icon_url] = icon
     elsif !(icon.nil? || icon == '')
       raise ArgumentError, "Couldn't figure out icon '#{icon}'. Try :emoji: or a URL."
+    end
+
+    if !time.nil?
+      params[:post_at] = time.to_i
+
+      if params[:icon_url] || params[:icon_emoji]
+        raise ArgumentError, "Sorry, setting an image / emoji icon for scheduled messages isn't supported."
+      end
+    end
+
+    if SlackMessage::Configuration.debugging?
+      warn params.inspect
     end
 
     response = post_message(profile, params)
@@ -84,6 +96,7 @@ module SlackMessage::Api
 
   def look_up_user_by_email(email, profile)
     uri = URI("https://slack.com/api/users.lookupByEmail?email=#{email}")
+
     request = Net::HTTP::Get.new(uri).tap do |req|
       req['Authorization']  = "Bearer #{profile[:api_token]}"
       req['Content-type']   = "application/json; charset=utf-8"
@@ -95,7 +108,12 @@ module SlackMessage::Api
   end
 
   def post_message(profile, params)
-    uri = URI("https://slack.com/api/chat.postMessage")
+    uri = if params[:post_at]
+      URI("https://slack.com/api/chat.scheduleMessage")
+    else
+      URI("https://slack.com/api/chat.postMessage")
+    end
+
     request = Net::HTTP::Post.new(uri).tap do |req|
       req['Authorization']  = "Bearer #{profile[:api_token]}"
       req['Content-type']   = "application/json; charset=utf-8"

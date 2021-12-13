@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.4.0] - 2021-12-13
+- Add ability to schedule messages, plus some guard rails around that.
+- Add ability to debug by logging out the total set of params sent to the API.
+
 ## [2.3.1] - 2021-11-30
 - Adjust that minimum version by changing some syntax to older styles. Given
   support for ruby 2.4 ended almost 2 years ago, going to go ahead and leave

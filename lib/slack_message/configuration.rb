@@ -1,8 +1,10 @@
 module SlackMessage::Configuration
   @@profiles = {}
+  @@debug = false
 
   def self.reset
-    @@profiles  = {}
+    @@profiles = {}
+    @@debug = false
   end
 
   def self.configure
@@ -35,5 +37,13 @@ module SlackMessage::Configuration
     end
 
     @@profiles[handle]
+  end
+
+  def self.debug
+    @@debug = true
+  end
+
+  def self.debugging?
+    @@debug
   end
 end

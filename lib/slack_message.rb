@@ -21,7 +21,7 @@ module SlackMessage
     Api.user_id_for(email, profile)
   end
 
-  def self.post_to(target, as: :default, &block)
+  def self.post_to(target, as: :default, at: nil, &block)
     profile = Configuration.profile(as)
 
     payload = Dsl.new(block, profile).tap do |instance|
@@ -30,10 +30,10 @@ module SlackMessage
 
     target  = Api::user_id_for(target, profile) if target =~ EMAIL_PATTERN
 
-    Api.post(payload, target, profile)
+    Api.post(payload, target, profile, at)
   end
 
-  def self.post_as(profile_name, &block)
+  def self.post_as(profile_name, at: nil, &block)
     profile = Configuration.profile(profile_name)
     if profile[:default_channel].nil?
       raise ArgumentError, "Sorry, you need to specify a default_channel for profile #{profile_name} to use post_as"
@@ -46,7 +46,7 @@ module SlackMessage
     target  = profile[:default_channel]
     target  = Api::user_id_for(target, profile) if target =~ EMAIL_PATTERN
 
-    Api.post(payload, target, profile)
+    Api.post(payload, target, profile, at)
   end
 
   def self.build(profile_name = :default, &block)
