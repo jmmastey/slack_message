@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.1] - 2021-12-13
+- Return a more structured object from successful message sends.
+- Add the ability to edit or delete a message.
+- Complete overhaul of docs because they were too large.
+
 ## [2.4.0] - 2021-12-13
 - Add ability to schedule messages, plus some guard rails around that.
 - Add ability to debug by logging out the total set of params sent to the API.
