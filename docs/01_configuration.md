@@ -111,4 +111,6 @@ You will now see warnings detailing all params sent to the API.
 
 Note this includes data that is not included in `SlackMessage.build`.
 
+---
+
 Next: Posting a Message

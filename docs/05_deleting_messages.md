@@ -9,7 +9,7 @@ message = SlackMessage.post_to('#general') do
 end
 ```
 
-Now you can simply call the `remove` method to make up for your mistakes.
+Now you can simply call the `delete` method to make up for your mistakes.
 
 ```ruby
 SlackMessage.delete(message)
@@ -38,4 +38,6 @@ See the [API documentation for
 chat.delete](https://api.slack.com/methods/chat.delete) for more information on
 deleting messages.
 
-Next: Notifying Users
+---
+
+Next: Mentions / Notifying Users

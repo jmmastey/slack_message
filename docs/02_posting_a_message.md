@@ -129,4 +129,6 @@ chat.postMessage](https://api.slack.com/methods/chat.postMessage) or
 [chat.scheduleMessage](https://api.slack.com/methods/chat.scheduleMessage) for
 more information on posting messages.
 
+---
+
 Next: The SlackMessage DSL

@@ -1,7 +1,7 @@
-## Notifying Users
+## Mentions / Notifying Users
 
 There are several supported ways to tag and notify users. As mentioned
-initially, it's possible to DM a user by email.
+initially, it's possible to DM a user by their account email.
 
 ```ruby
 SlackMessage.post_to('hello@joemastey.com') do
@@ -46,5 +46,17 @@ SlackMessage.post_to('hello@joemastey.com') do
   text "There's no coffee left!"
 end
 ```
+
+#### Using @channel or @here
+
+Not really a feature, but Slack will respect usage of `@here` and `@channel`.
+
+```ruby
+SlackMessage.post_to('#general') do
+  text "Hey @channel, don't forget to submit your drink requests."
+end
+```
+
+---
 
 Next: Testing

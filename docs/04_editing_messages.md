@@ -52,8 +52,6 @@ class SomeWorker < ApplicationWorker
 end
 ```
 
-TODO: does using @here or mentioning someone trigger new notifications?
-
 ### Storing Response Objects for Later
 
 Since updates are likely to occur after you've long since finished posting the
@@ -97,5 +95,7 @@ end
 See the [API documentation for
 chat.update](https://api.slack.com/methods/chat.update) for more information on
 updating messages.
+
+---
 
 Next: Deleting Messages

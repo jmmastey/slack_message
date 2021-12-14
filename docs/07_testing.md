@@ -10,7 +10,7 @@ require 'slack_message/rspec'
 RSpec.configure do |config|
   include SlackMessage::RSpec
 
-  # your other config
+  # your other spec_helper config
 end
 ```
 
