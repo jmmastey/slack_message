@@ -77,8 +77,11 @@ Some behaviors that are still planned but not yet added:
 * multiple recipients: https://api.slack.com/methods/conversations.open
 * more interesting return types for your message
 * richer text formatting (for instance, `ul` is currently a hack)
+* more mrkdwn syntax, like quotes or code blocks
 * more and better organized testing capability
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
+* figure out the interplay of editing messages and notifications.
+* some Rspec test harness for scheduled messages, editing, deleting (probably going to need a test overhaul)
 
 Contributing
 ------------

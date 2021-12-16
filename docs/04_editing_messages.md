@@ -52,7 +52,7 @@ class SomeWorker < ApplicationWorker
 end
 ```
 
-### Storing Response Objects for Later
+#### Storing Response Objects for Later
 
 Since updates are likely to occur after you've long since finished posting the
 original message, you'll need to persist the message response somehow until you
@@ -74,23 +74,10 @@ SlackMessage.update(message) do
 end
 ```
 
-Alternatively, you could persist the relevant data into the database. A message
-is identified to the API by a combination of its _channel_ and _timestamp_, and
-you can use these identifiers rather than passing the response object itself.
+#### Updating Scheduled Messages
 
-```ruby
-# initially
-message = SlackMessage.post_to('#general') do
-  text "Starting..."
-end
-UploadRun.create!(slack_channel: message.channel, slack_timestamp: message.timestamp)
-
-## later
-run = self.persisted_upload_run
-message = SlackMessage.update(channel: run.slack_channel, timestamp: run.slack_timestamp) do
-  text "Finished!"
-end
-```
+Sadly, there's currently no way to edit a scheduled message. You'll receive an
+error if you attempt to call `update` on a scheduled message.
 
 See the [API documentation for
 chat.update](https://api.slack.com/methods/chat.update) for more information on

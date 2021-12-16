@@ -157,4 +157,7 @@ RSpec.describe SlackMessage do
       }.to post_to_slack.with_content_matching(/ABC123/)
     end
   end
+
+  # describe delete
+  # describe update
 end

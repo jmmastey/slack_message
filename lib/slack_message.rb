@@ -1,4 +1,5 @@
 module SlackMessage
+  require 'slack_message/response'
   require 'slack_message/dsl'
   require 'slack_message/api'
   require 'slack_message/configuration'
@@ -39,14 +40,44 @@ module SlackMessage
       raise ArgumentError, "Sorry, you need to specify a default_channel for profile #{profile_name} to use post_as"
     end
 
+    target  = profile[:default_channel]
     payload = Dsl.new(block, profile).tap do |instance|
       instance.instance_eval(&block)
     end
 
-    target  = profile[:default_channel]
     target  = Api::user_id_for(target, profile) if target =~ EMAIL_PATTERN
 
     Api.post(payload, target, profile, at)
+  end
+
+  def self.update(message, &block)
+    unless message.is_a?(SlackMessage::Response)
+      raise ArgumentError, "You must pass in a SlackMessage::Response to update a message"
+    end
+
+    if message.scheduled?
+      raise ArgumentError, "Sorry, scheduled messages cannot be updated. You will need to delete the message and schedule a new one."
+    end
+
+    profile = Configuration.profile(message.profile_handle)
+    payload = Dsl.new(block, profile).tap do |instance|
+      instance.instance_eval(&block)
+    end
+
+    Api.update(payload, message, profile)
+  end
+
+  def self.delete(message)
+    unless message.is_a?(SlackMessage::Response)
+      raise ArgumentError, "You must pass in a SlackMessage::Response to delete a message"
+    end
+
+    if message.sent_to_user?
+      raise ArgumentError, "It's not possible to delete messages sent directly to users."
+    end
+
+    profile = Configuration.profile(profile)
+    Api.delete(message, profile)
   end
 
   def self.build(profile_name = :default, &block)

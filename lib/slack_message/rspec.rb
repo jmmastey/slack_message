@@ -14,6 +14,8 @@ require 'rspec/mocks'
 # it can be cleaned up properly.
 #
 
+# TODO: testing for scheduled messages, editing and deleting
+
 module SlackMessage::RSpec
   extend RSpec::Matchers::DSL
 
