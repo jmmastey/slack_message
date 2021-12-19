@@ -76,7 +76,7 @@ module SlackMessage
       raise ArgumentError, "It's not possible to delete messages sent directly to users."
     end
 
-    profile = Configuration.profile(profile)
+    profile = Configuration.profile(message.profile_handle)
     Api.delete(message, profile)
   end
 

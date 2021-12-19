@@ -35,12 +35,10 @@ message = Marshal.load(redis_connection.get(self.message_cache_key))
 SlackMessage.delete(message)
 ```
 
-Note that the message timestamp is _absolutely required_. There's no current
-way in SlackMessage to search for a message to delete.
-
 See the [API documentation for
-chat.delete](https://api.slack.com/methods/chat.delete) for more information on
-deleting messages.
+chat.delete](https://api.slack.com/methods/chat.delete) or
+[chat.deleteScheduledMessage](https://api.slack.com/methods/chat.deleteScheduledMessage)
+for more information on deleting messages.
 
 ---
 

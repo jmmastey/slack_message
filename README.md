@@ -80,7 +80,6 @@ Some behaviors that are still planned but not yet added:
 * more mrkdwn syntax, like quotes or code blocks
 * more and better organized testing capability
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
-* figure out the interplay of editing messages and notifications.
 * some Rspec test harness for scheduled messages, editing, deleting (probably going to need a test overhaul)
 
 Contributing

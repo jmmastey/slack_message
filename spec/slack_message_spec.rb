@@ -158,6 +158,5 @@ RSpec.describe SlackMessage do
     end
   end
 
-  # describe delete
-  # describe update
+  # tests for actual sending methods? what would actually be useful?
 end

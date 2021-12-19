@@ -114,15 +114,21 @@ module SlackMessage::Api
 
     # TODO: error messaging
 
-    # TODO: is this the right response type?
     SlackMessage::Response.new(response, profile[:handle])
   end
 
   def delete(message, profile)
-    params  = {
-      channel: message.channel,
-      ts: message.timestamp,
-    }
+    params = if message.scheduled?
+      {
+        channel: message.channel,
+        scheduled_message_id: message.scheduled_message_id,
+      }
+    else
+      {
+        channel: message.channel,
+        ts: message.timestamp,
+      }
+    end
 
     response = delete_message(profile, params)
 
@@ -149,7 +155,7 @@ module SlackMessage::Api
   end
 
   def post_message(profile, params)
-    uri = if params[:post_at]
+    uri = if params.has_key?(:post_at)
       URI("https://slack.com/api/chat.scheduleMessage")
     else
       URI("https://slack.com/api/chat.postMessage")
@@ -181,7 +187,11 @@ module SlackMessage::Api
   end
 
   def delete_message(profile, params)
-    uri = URI("https://slack.com/api/chat.delete")
+    uri = if params.has_key?(:scheduled_message_id)
+      URI("https://slack.com/api/chat.deleteScheduledMessage")
+    else
+      URI("https://slack.com/api/chat.delete")
+    end
 
     request = Net::HTTP::Post.new(uri).tap do |req|
       req['Authorization']  = "Bearer #{profile[:api_token]}"
