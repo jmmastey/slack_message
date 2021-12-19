@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.1] - 2021-12-13
+## [3.0.0] - 2021-12-19
 - Return a more structured object from successful message sends.
 - Add the ability to edit or delete a message.
 - Complete overhaul of docs because they were too large.
