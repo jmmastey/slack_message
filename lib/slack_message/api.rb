@@ -59,7 +59,7 @@ module SlackMessage::Api
     if !time.nil?
       params[:post_at] = time.to_i
 
-      if params[:icon_url] || params[:icon_emoji]
+      if payload.custom_bot_name || payload.custom_bot_icon
         raise ArgumentError, "Sorry, setting an image / emoji icon for scheduled messages isn't supported."
       end
     end
@@ -71,6 +71,8 @@ module SlackMessage::Api
     response = post_message(profile, params)
     body  = JSON.parse(response.body)
     error = body.fetch("error", "")
+
+    # TODO: if a scheduled message w/ a short timer is "time_in_past", warn the user?
 
     # let's try to be helpful about error messages
     if ["token_revoked", "token_expired", "invalid_auth", "not_authed"].include?(error)
@@ -86,6 +88,51 @@ module SlackMessage::Api
     elsif response.code != "200"
       raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     end
+
+    SlackMessage::Response.new(response, profile[:handle])
+  end
+
+  def update(payload, message, profile)
+    params  = {
+      channel: message.channel,
+      ts: message.timestamp,
+      blocks: payload.render,
+      text: payload.custom_notification # TODO: ???
+    }
+
+    if params[:blocks].length == 0
+      raise ArgumentError, "Tried to send an entirely empty message."
+    end
+
+    if SlackMessage::Configuration.debugging?
+      warn params.inspect
+    end
+
+    response = update_message(profile, params)
+    body  = JSON.parse(response.body)
+    error = body.fetch("error", "")
+
+    # TODO: error messaging
+
+    SlackMessage::Response.new(response, profile[:handle])
+  end
+
+  def delete(message, profile)
+    params = if message.scheduled?
+      {
+        channel: message.channel,
+        scheduled_message_id: message.scheduled_message_id,
+      }
+    else
+      {
+        channel: message.channel,
+        ts: message.timestamp,
+      }
+    end
+
+    response = delete_message(profile, params)
+
+    # TODO error handling (incl for already scheduled-and-sent messages)
 
     response
   end
@@ -108,10 +155,42 @@ module SlackMessage::Api
   end
 
   def post_message(profile, params)
-    uri = if params[:post_at]
+    uri = if params.has_key?(:post_at)
       URI("https://slack.com/api/chat.scheduleMessage")
     else
       URI("https://slack.com/api/chat.postMessage")
+    end
+
+    request = Net::HTTP::Post.new(uri).tap do |req|
+      req['Authorization']  = "Bearer #{profile[:api_token]}"
+      req['Content-type']   = "application/json; charset=utf-8"
+      req.body = params.to_json
+    end
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+  end
+
+  def update_message(profile, params)
+    uri = URI("https://slack.com/api/chat.update")
+
+    request = Net::HTTP::Post.new(uri).tap do |req|
+      req['Authorization']  = "Bearer #{profile[:api_token]}"
+      req['Content-type']   = "application/json; charset=utf-8"
+      req.body = params.to_json
+    end
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+  end
+
+  def delete_message(profile, params)
+    uri = if params.has_key?(:scheduled_message_id)
+      URI("https://slack.com/api/chat.deleteScheduledMessage")
+    else
+      URI("https://slack.com/api/chat.delete")
     end
 
     request = Net::HTTP::Post.new(uri).tap do |req|

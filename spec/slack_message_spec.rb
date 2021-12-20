@@ -157,4 +157,6 @@ RSpec.describe SlackMessage do
       }.to post_to_slack.with_content_matching(/ABC123/)
     end
   end
+
+  # tests for actual sending methods? what would actually be useful?
 end
