@@ -131,4 +131,4 @@ more information on posting messages.
 
 ---
 
-Next: The SlackMessage DSL
+Next: [The SlackMessage DSL](https://jmmastey.github.io/slack_message/03_message_dsl)

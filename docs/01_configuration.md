@@ -113,4 +113,4 @@ Note this includes data that is not included in `SlackMessage.build`.
 
 ---
 
-Next: Posting a Message
+Next: [Posting a Message](https://jmmastey.github.io/slack_message/02_posting_a_message)

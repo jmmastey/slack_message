@@ -42,4 +42,4 @@ for more information on deleting messages.
 
 ---
 
-Next: Mentions / Notifying Users
+Next: [Mentions / Notifying Users](https://jmmastey.github.io/slack_message/06_notifying_users)

@@ -280,4 +280,4 @@ you will need to enable debugging to see how it changes what is sent to the API.
 
 ---
 
-Next: Editing Messages
+Next: [Editing Messages](https://jmmastey.github.io/slack_message/04_editing_messages)

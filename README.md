@@ -50,6 +50,9 @@ end
 
 ### The Docs
 
+You'll find much more information about how to use SlackMessage by visiting
+[the docs](https://jmmastey.github.io/slack_message).
+
 #### Opinionated Stances
 
 This gem is intended to stay simple. Other Slack gems have lots of config

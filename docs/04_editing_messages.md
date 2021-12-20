@@ -85,4 +85,4 @@ updating messages.
 
 ---
 
-Next: Deleting Messages
+Next: [Deleting Messages](https://jmmastey.github.io/slack_message/05_deleting_messages)
