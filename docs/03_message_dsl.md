@@ -1,8 +1,4 @@
----
-title: Slack Message
----
-
-### The Message DSLs
+### The Message DSL
 
 A pretty good number of the elements available in BlockKit are usable in SlackMessage. There are also a few elements that haven't been implemented in the official API, but are too useful to be missing.
 
