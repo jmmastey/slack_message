@@ -12,8 +12,14 @@ SlackMessage.post_to('#general') do
   text "We did it @here! :thumbsup:"
 end
 ```
+ 
+### The Docs
 
-#### Posting
+You'll find much more information about how to use SlackMessage by visiting
+[the docs](https://jmmastey.github.io/slack_message).
+ 
+
+### Posting
 
 SlackMessage is able to build all kinds of rich messages for you, and has been
 a real joy to use for the author at least. To understand a bit more about the
@@ -48,12 +54,7 @@ SlackMessage.post_to('#general') do
 end
 ```
 
-### The Docs
-
-You'll find much more information about how to use SlackMessage by visiting
-[the docs](https://jmmastey.github.io/slack_message).
-
-#### Opinionated Stances
+### Opinionated Stances
 
 This gem is intended to stay simple. Other Slack gems have lots of config
 options and abilities, which makes them powerful, but makes them a pain to use.
@@ -85,14 +86,12 @@ Some behaviors that are still planned but not yet added:
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
 * some Rspec test harness for scheduled messages, editing, deleting (probably going to need a test overhaul)
 
-Contributing
-------------
+### Contributing
 
 Contributions are very welcome. Fork, fix, submit pull. Since simplicity of API is a strong priority, so opening an issue to discuss possible interface changes would be wise.
 
 Contribution is expected to conform to the [Contributor Covenant](https://github.com/jmmastey/slack_message/blob/master/CODE_OF_CONDUCT.md).
 
-License
-------------
+### License
 
 This software is released under the [MIT License](https://github.com/jmmastey/slack_message/blob/master/MIT-LICENSE).
