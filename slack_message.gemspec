@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'slack_message'
-  gem.version     = "3.0.0"
+  gem.version     = "3.0.1"
   gem.summary     = "A nice DSL for composing rich messages in Slack"
   gem.authors     = ["Joe Mastey"]
   gem.email       = 'hello@joemastey.com'
