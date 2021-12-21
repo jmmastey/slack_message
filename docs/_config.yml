@@ -4,4 +4,4 @@ relative_links:
   enabled: true
   collections: true
 highlighter: rouge
-theme: jekyll-theme-midnight
+theme: jekyll-theme-tactile
