@@ -1,4 +1,4 @@
-### Updating a Previous Message
+## Updating a Previous Message
 
 After you've posted a message, you may want to edit it later. Interactive bots,
 for instance, may want to repeatedly update a message.
@@ -52,7 +52,7 @@ class SomeWorker < ApplicationWorker
 end
 ```
 
-#### Storing Response Objects for Later
+### Storing Response Objects for Later
 
 Since updates are likely to occur after you've long since finished posting the
 original message, you'll need to persist the message response somehow until you
@@ -74,7 +74,7 @@ SlackMessage.update(message) do
 end
 ```
 
-#### Updating Scheduled Messages
+### Updating Scheduled Messages
 
 Sadly, there's currently no way to edit a scheduled message. You'll receive an
 error if you attempt to call `update` on a scheduled message.

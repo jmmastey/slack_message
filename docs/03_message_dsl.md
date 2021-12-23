@@ -1,8 +1,8 @@
-### The Message DSL
+## The Message DSL
 
 A pretty good number of the elements available in BlockKit are usable in SlackMessage. There are also a few elements that haven't been implemented in the official API, but are too useful to be missing.
 
-#### Basic Text
+### Basic Text
 
 While BlockKit officially requires that any elements are contained within a section element, that requirement is relaxed in SlackMessage. If you don't specify a section, one will silently be created to encapsulate your code. That's the secret behind the most basic messages in these docs.
 
@@ -108,7 +108,7 @@ end
 Note that between the two newlines in the above example is a unicode emspace,
 which the API will respect as a line worth rendering.
 
-#### Buttons
+### Buttons
 
 BlockKit allows you to specify a button to the right of a section / block. That
 button will be aligned outside the normal space for a section, and is meant to
@@ -152,7 +152,7 @@ end
 #   :style=>:danger}}]
 ```
 
-#### Ordered and Unordered Lists
+### Ordered and Unordered Lists
 
 The Slack API doesn't have native support for HTML-style ordered and unordered
 lists, but there are convenience methods in SlackMessage to render a close
@@ -182,7 +182,7 @@ Because Slack automatically collapses leading whitespace, indention of lists is
 handled using unicode emspaces. Bullets for unordered lists are also unicode
 characters to avoid being read as markdown.
 
-#### List Items (e.g. HTML dt & dd)
+### List Items (e.g. HTML dt & dd)
 
 When trying to represent title / value lists, you can use the "list item" block
 type to pass a set of values. Slack does not allow you to customize how many
@@ -199,7 +199,7 @@ SlackMessage.build do
 end
 ```
 
-#### Including Multiple Sections
+### Including Multiple Sections
 
 Adding more sections is trivial. Simply declare each section and it will be
 separated in the rendered message. This can often occur when looping.
@@ -243,10 +243,10 @@ section. Because of how implicit sections are built, it may look like this works
 for simple messages. You may have troubles when you start adding more
 complicated elements to your messages.
 
-#### Images
+### Images
 TODO: image, accessory_image
 
-#### Footers (Context)
+### Footers (Context)
 
 Slack allows you to add a small additional piece of text to your message, which
 will be rendered in italics and small text. It can support both links and emoji,
@@ -271,7 +271,7 @@ end
 Context does not belong to a section, and is per-message, not per-section.
 Specifying more than one context will simply overwrite previous calls.
 
-#### Bot Customization
+### Bot Customization
 
 By default - and with scheduled messages - Slack will use the name and icon of
 the Slack app whose API key you configured. As seen before, it's
@@ -296,7 +296,7 @@ The `bot_icon` can be specified as either an emoji (`:example:`), or a URL
 pointing to an image (`http://mysite.com/shipit.png`). Any other value seems to
 cause an error.
 
-#### Custom Notification Text
+### Custom Notification Text
 
 For users who have notifications turned on, Slack will provide a small message
 preview when you send them a message. By default, this preview will take the

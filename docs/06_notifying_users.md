@@ -47,7 +47,7 @@ SlackMessage.post_to('hello@joemastey.com') do
 end
 ```
 
-#### Using @channel or @here
+### Using @channel or @here
 
 Not really a feature, but Slack will respect usage of `@here` and `@channel`.
 

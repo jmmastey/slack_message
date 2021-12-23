@@ -1,4 +1,4 @@
-### Deleting Messages
+## Deleting Messages
 
 Deleting a message is much like editing a message, only simpler. Just like when
 you edit a message, you'll need a reference to the message you posted.
