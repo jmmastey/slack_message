@@ -76,13 +76,14 @@ Accordingly, SlackMessage is developed with some strong opinions in mind:
   doesn't exist in the API), or leading spaces.
 * Configuration is kept simple, with helpers for frequently reused bots.
 
-Some behaviors that are still planned but not yet added:
+Some changes that are still planned or desired, but not yet added:
 
 * any interactive elements at all: https://api.slack.com/interactivity/handling
 * multiple recipients: https://api.slack.com/methods/conversations.open
 * more mrkdwn syntax, like quotes or code blocks
 * more and better organized testing capability (scheduled messages, editing, deleting)
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
+* updated docs w/ links to BlockBuilder
 
 ### Contributing
 

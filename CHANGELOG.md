@@ -1,7 +1,8 @@
 # Changelog
 
 ## [3.0.2] - TBD
-- Fix tests on ruby 3.0
+- Fix tests on ruby 3.0.
+- More small adjustments and additions to docs.
 
 ## [3.0.1] - 2021-12-22
 - Major overhaul of error handling and expansion on which errors trigger

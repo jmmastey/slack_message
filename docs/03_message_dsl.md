@@ -1,10 +1,15 @@
 ## The Message DSL
 
-A pretty good number of the elements available in BlockKit are usable in SlackMessage. There are also a few elements that haven't been implemented in the official API, but are too useful to be missing.
+A pretty good number of the elements available in BlockKit are usable in
+SlackMessage. There are also a few elements that haven't been implemented in
+the official API, but are too useful to be missing.
 
 ### Basic Text
 
-While BlockKit officially requires that any elements are contained within a section element, that requirement is relaxed in SlackMessage. If you don't specify a section, one will silently be created to encapsulate your code. That's the secret behind the most basic messages in these docs.
+While BlockKit officially requires that any elements are contained within a
+section element, that requirement is relaxed in SlackMessage. If you don't
+specify a section, one will silently be created to encapsulate your code.
+That's the secret behind the most basic messages in these docs.
 
 ```ruby
 SlackMessage.build do
@@ -108,6 +113,50 @@ end
 Note that between the two newlines in the above example is a unicode emspace,
 which the API will respect as a line worth rendering.
 
+### Explicitly Declared Sections
+
+Adding more sections is trivial. Simply declare each section and it will be
+separated in the rendered message. This can often occur when looping.
+
+```ruby
+SlackMessage.build do
+  pet_types.each do |type, breeds|
+    section do
+      text "*#{type}:* #{breeds.join(", ")}"
+    end
+  end
+end
+```
+
+It can also be useful to add a visual divider (similar to a `hr` in HTML)
+between sections. To add one of these, use the `divider` helper. You can also
+add a divider at the end of all the sections, but it often looks silly.
+
+```ruby
+SlackMessage.build do
+  section do
+    text "*Topsiders:* Emily, Elsie, Derick"
+  end
+
+  divider
+
+  section do
+    text "*Undergrounders:* Kristina, Lauren, Different Emily"
+  end
+end
+
+# => [
+#  {:type=>"section", :text=>{:type=>"mrkdwn", :text=>"*Topsiders:* Emily, Elsie, Derick"}},
+#  {:type=>"divider"},
+#  {:type=>"section", :text=>{:type=>"mrkdwn", :text=>"*Undergrounders:* Kristina, Lauren, Different Emily"}}
+# ]
+```
+
+Note that a divider can only occur between sections, not within a single
+section. Because of how implicit sections are built, it may look like this
+works for simple messages. You may have troubles when you start adding more
+complicated elements to your messages.
+
 ### Buttons
 
 BlockKit allows you to specify a button to the right of a section / block. That
@@ -132,10 +181,10 @@ end
 Slack allows three styles for buttons: `default`, `primary`, and `danger`.
 These correspond to gray, green and red buttons respectively. If not specified,
 SlackMessage will use the `primary` style for buttons. I get that this could be
-confusing when there is a default style, but in my experience, a colorful button
-is way more common.
+confusing when there is a default style, but in my experience, a colorful
+button is way more common.
 
-You can override the button style by specifying the style with your link button.
+You can override button style by specifying the style with your link button.
 
 ```ruby
 SlackMessage.build do
@@ -199,58 +248,65 @@ SlackMessage.build do
 end
 ```
 
-### Including Multiple Sections
+### Images and Accessory Images
 
-Adding more sections is trivial. Simply declare each section and it will be
-separated in the rendered message. This can often occur when looping.
+There are two main types of images in Slack: the
+[image](https://imgur.com/XEUap1r) and the [accessory
+image](https://imgur.com/zuhjBDq). In short, `accessory_image` is part of a
+section itself and is shown alongside an existing block, while `image` is shown
+as its own top-level element.
 
-```ruby
-SlackMessage.build do
-  pet_types.each do |type, breeds|
-    section do
-      text "*#{type}:* #{breeds.join(", ")}"
-    end
-  end
-end
-```
-
-It can also be useful to add a visual divider (similar to a `hr` in HTML)
-between sections. To add one of these, use the `divider` helper. You can also
-add a divider at the end of all the sections, but it often looks silly.
+Accordingly, accessory image should be used with sections. An accessory image
+can accept alt-text, which is also a best practice for usability reasons.
 
 ```ruby
 SlackMessage.build do
   section do
-    text "*Topsiders:* Emily, Elsie, Derick"
-  end
-
-  divider
-
-  section do
-    text "*Undergrounders:* Kristina, Lauren, Different Emily"
+    text 'Looks like the coffee machine is empty.'
+    accessory_image 'https://your.com/empty_coffee_logo.jpg', alt_text: 'logo of a forlorn coffee cup'
   end
 end
-
-# => [
-#  {:type=>"section", :text=>{:type=>"mrkdwn", :text=>"*Topsiders:* Emily, Elsie, Derick"}},
-#  {:type=>"divider"},
-#  {:type=>"section", :text=>{:type=>"mrkdwn", :text=>"*Undergrounders:* Kristina, Lauren, Different Emily"}}
-# ]
 ```
 
-Note that a divider can only occur between sections, not within a single
-section. Because of how implicit sections are built, it may look like this works
-for simple messages. You may have troubles when you start adding more
-complicated elements to your messages.
+Only one accessory image can be used per section, and declaring more will issue
+a warning and simply override the previous accessory image.
 
-### Images
-TODO: image, accessory_image
+By contrast, image can be used many times, and will create a new top-level
+section for each call. Image accepts alt-text, but also a title, which will
+be displayed above the image (along with an icon to collapse the image).
+
+```ruby
+SlackMessage.build do
+  section do
+    text 'Most Recent Tiny Pig Images'
+  end
+
+  image 'https://your.com/employee_pets/best/pig_1.jpg', alt_text: 'a tiny pig eating ice cream', title: 'Spider Pig'
+  image 'https://your.com/employee_pets/best/pig_2.jpg', alt_text: 'a tiny pig smiling mischeviously', title: 'Porkeypine'
+  image 'https://your.com/employee_pets/best/pig_3.jpg', alt_text: 'a tiny pig with wellies and an umbrella', title: 'Albert Sweinstein'
+end
+```
+
+Sectionless messages can also use `accessory_image`, but this can get confusing
+since they could potentially be interspersed with top-level images, so I
+wouldn't recommend it.
+
+```ruby
+# the difference between these two image styles is confusing
+SlackMessage.build do
+  text 'Looks like the coffee machine is empty.'
+  accessory_image 'https://your.com/empty_coffee_logo.jpg'
+
+  text '*Most Recent Coffee Maker Surveillance Photo*'
+  image 'https://your.com/surveillance/coffee/current.jpg'
+end
+```
 
 ### Footers (Context)
 
 Slack allows you to add a small additional piece of text to your message, which
-will be rendered in italics and small text. It can support both links and emoji,
-and is useful for providing minor details for your message.
+will be rendered in italics and small text. It can support both links and
+emoji, and is useful for providing minor details for your message.
 
 ```ruby
 SlackMessage.build do
@@ -274,9 +330,9 @@ Specifying more than one context will simply overwrite previous calls.
 ### Bot Customization
 
 By default - and with scheduled messages - Slack will use the name and icon of
-the Slack app whose API key you configured. As seen before, it's
-possible to override those default names and icons in configuration. However, it
-can also be customized per-message.
+the Slack app whose API key you configured. As seen before, it's possible to
+override those default names and icons in configuration. However, it can also
+be customized per-message.
 
 ```ruby
 SlackMessage.build do
