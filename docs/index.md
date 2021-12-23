@@ -47,3 +47,7 @@ end
 
 It has no dependencies and minimal configuration needs, so you can get up and
 running quickly.
+
+---
+
+Next: [Get Started](https://jmmastey.github.io/slack_message/01_configuration)
