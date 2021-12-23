@@ -166,7 +166,7 @@ RSpec.describe SlackMessage do
     end
 
     it "raises nice error messages when API methods return errors" do
-      SlackMessage::RSpec.respond_with('error' => 'nuffin')
+      SlackMessage::RSpec.respond_with({'error' => 'nuffin'})
 
       expect {
         SlackMessage.post_to('#general') { text 'nuh uh' }
@@ -188,7 +188,7 @@ RSpec.describe SlackMessage do
     it "raises errors w/ updates too" do
       message = SlackMessage.post_to('#general') { text 'nuh uh' }
 
-      SlackMessage::RSpec.respond_with('error' => 'bad choice')
+      SlackMessage::RSpec.respond_with({'error' => 'bad choice'})
 
       expect {
         SlackMessage.update(message) { text 'nuh uh' }
@@ -198,7 +198,7 @@ RSpec.describe SlackMessage do
     it "even raises errors during deletes" do
       message = SlackMessage.post_to('#general') { text 'nuh uh' }
 
-      SlackMessage::RSpec.respond_with('error' => 'bad choice')
+      SlackMessage::RSpec.respond_with({'error' => 'bad choice'})
 
       expect {
         SlackMessage.delete(message) { text 'nuh uh' }

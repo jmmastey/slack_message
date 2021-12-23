@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.0.2] - TBD
+- Fix tests on ruby 3.0
+
 ## [3.0.1] - 2021-12-22
 - Major overhaul of error handling and expansion on which errors trigger
   friendly messages for users.
