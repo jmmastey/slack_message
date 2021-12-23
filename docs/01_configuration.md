@@ -95,18 +95,18 @@ end
 You will now see warnings detailing all params sent to the API.
 
 ```ruby
-  {
-    :channel=>"#general",
-    :username=>"Builds",
-    :blocks=>[
-      {:type=>"section", :text=>{
-        :type=>"mrkdwn",
-        :text=>"Build Stability is Looking Ruff :dog:"
-      }}
-    ],
-    :text=>"Build Issues",
-    :post_at=>1639421171,
-  }
+{
+  :channel=>"#general",
+  :username=>"Builds",
+  :blocks=>[
+    {:type=>"section", :text=>{
+      :type=>"mrkdwn",
+      :text=>"Build Stability is Looking Ruff :dog:"
+    }}
+  ],
+  :text=>"Build Issues",
+  :post_at=>1639421171,
+}
 ```
 
 Note this includes data that is not included in `SlackMessage.build`.

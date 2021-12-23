@@ -62,6 +62,8 @@ options and abilities, which makes them powerful, but makes them a pain to use.
 Accordingly, SlackMessage is developed with some strong opinions in mind:
 
 * SlackMessage has no dependencies. Your lockfile is enough of a mess already.
+* A DSL that focuses on code that is easy to write, read, and maintain. Only
+  features that can be implemented with that in mind are included.
 * The code to build a message should look a lot like the message itself. Code
   that is simple to read and understand is a priority.
 * Webhooks are passé. Only Slack Apps are supported now.
@@ -72,19 +74,15 @@ Accordingly, SlackMessage is developed with some strong opinions in mind:
   to look it up as an email address.
 * A few little hacks on the block syntax, such as adding a `blank_line` (which
   doesn't exist in the API), or leading spaces.
-* Configuration is kept as simple as possible. But, as much heavy lifting as
-  possible should occur just once via configuration and not on every call.
+* Configuration is kept simple, with helpers for frequently reused bots.
 
 Some behaviors that are still planned but not yet added:
 
 * any interactive elements at all: https://api.slack.com/interactivity/handling
 * multiple recipients: https://api.slack.com/methods/conversations.open
-* more interesting return types for your message
-* richer text formatting (for instance, `ul` is currently a hack)
 * more mrkdwn syntax, like quotes or code blocks
-* more and better organized testing capability
+* more and better organized testing capability (scheduled messages, editing, deleting)
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
-* some Rspec test harness for scheduled messages, editing, deleting (probably going to need a test overhaul)
 
 ### Contributing
 

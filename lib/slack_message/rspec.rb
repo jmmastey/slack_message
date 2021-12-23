@@ -14,12 +14,15 @@ require 'rspec/mocks'
 # it can be cleaned up properly.
 #
 
-# TODO: testing for scheduled messages, editing and deleting
+# TODO: test helpers for scheduled messages, editing and deleting, and
+# notification text. And realistically, overhaul all this.
 
 module SlackMessage::RSpec
   extend RSpec::Matchers::DSL
 
   @@listeners = []
+  @@custom_response = {}
+  @@response_code = '200'
 
   def self.register_expectation_listener(expectation_instance)
     @@listeners << expectation_instance
@@ -27,6 +30,11 @@ module SlackMessage::RSpec
 
   def self.unregister_expectation_listener(expectation_instance)
     @@listeners.delete(expectation_instance)
+  end
+
+  def self.reset_custom_responses
+    @@custom_response = {}
+    @@response_code = '200'
   end
 
   FauxResponse = Struct.new(:code, :body)
@@ -38,22 +46,24 @@ module SlackMessage::RSpec
         listener.record_call(params.merge(profile: profile))
       end
 
-      response = {"ok"=>true,
-       "channel"=>"D12345678",
-       "ts"=>"1635863996.002300",
-       "message"=>
-        {"type"=>"message", "subtype"=>"bot_message",
-        "text"=>"foo",
-        "ts"=>"1635863996.002300",
-        "username"=>"SlackMessage",
-        "icons"=>{"emoji"=>":successkid:"},
-        "bot_id"=>"B1234567890",
-        "blocks"=>
-        [{"type"=>"section",
-          "block_id"=>"hAh7",
-          "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}]}}
+      response = {
+       "ok" => true,
+       "channel" => "C12345678",
+       "ts" => "1635863996.002300",
+       "message" => { "type"=>"message", "subtype"=>"bot_message",
+                     "text"=>"foo",
+                     "ts"=>"1635863996.002300",
+                     "username"=>"SlackMessage",
+                     "icons"=>{"emoji"=>":successkid:"},
+                     "bot_id"=>"B1234567890",
+                     "blocks"=> [{"type"=>"section",
+                                  "block_id"=>"hAh7",
+                                  "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}
+                     ]
+       }
+      }.merge(@@custom_response).to_json
 
-      return FauxResponse.new('200', response.to_json)
+      return FauxResponse.new(@@response_code, response)
     end
 
     SlackMessage::Api.undef_method(:look_up_user_by_email)
@@ -61,6 +71,18 @@ module SlackMessage::RSpec
       response = {"ok"=>true, "user"=>{"id"=>"U5432CBA"}}
       return FauxResponse.new('200', response.to_json)
     end
+  end
+
+  def self.respond_with(response = {}, code: '200')
+    raise ArgumentError, "custom response must be a hash" unless response.is_a? Hash
+
+    @@custom_response = response
+    @@response_code = code
+  end
+
+  def self.reset_mock_response
+    @@custom_response = {}
+    @@response_code = '200'
   end
 
   # w/ channel

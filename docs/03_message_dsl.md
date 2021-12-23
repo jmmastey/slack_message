@@ -152,11 +152,54 @@ end
 #   :style=>:danger}}]
 ```
 
-#### Lists and List Items
+#### Ordered and Unordered Lists
 
-- list_item, ul, ol
+The Slack API doesn't have native support for HTML-style ordered and unordered
+lists, but there are convenience methods in SlackMessage to render a close
+approximation.
 
-### Including Multiple Sections
+```ruby
+SlackMessage.build do
+  section do
+    text '*Pet Goodness Tiers*'
+
+    ol([
+      'tiny pigs',
+      'reptiles',
+      'dogs',
+      'cats',
+    ])
+  end
+
+  section do
+    text '_voted by_'
+    ul(['Joe', 'Emily', 'Sophia', 'Matt'])
+  end
+end
+```
+
+Because Slack automatically collapses leading whitespace, indention of lists is
+handled using unicode emspaces. Bullets for unordered lists are also unicode
+characters to avoid being read as markdown.
+
+#### List Items (e.g. HTML dt & dd)
+
+When trying to represent title / value lists, you can use the "list item" block
+type to pass a set of values. Slack does not allow you to customize how many
+items are shown per line, so you'll just have to work with it.
+
+```ruby
+SlackMessage.build do
+  text 'Import results are available!'
+
+  list_item 'Import Date', Date.today.to_s
+  list_item 'Items Imported', 55_000
+  list_item 'Errors', 23
+  list_item 'Bad Values', errors.map(&:to_s)
+end
+```
+
+#### Including Multiple Sections
 
 Adding more sections is trivial. Simply declare each section and it will be
 separated in the rendered message. This can often occur when looping.
@@ -200,10 +243,10 @@ section. Because of how implicit sections are built, it may look like this works
 for simple messages. You may have troubles when you start adding more
 complicated elements to your messages.
 
-### Images
-- image, accessory_image
+#### Images
+TODO: image, accessory_image
 
-### Footers (Context)
+#### Footers (Context)
 
 Slack allows you to add a small additional piece of text to your message, which
 will be rendered in italics and small text. It can support both links and emoji,
@@ -228,7 +271,7 @@ end
 Context does not belong to a section, and is per-message, not per-section.
 Specifying more than one context will simply overwrite previous calls.
 
-### Bot Customization
+#### Bot Customization
 
 By default - and with scheduled messages - Slack will use the name and icon of
 the Slack app whose API key you configured. As seen before, it's
@@ -253,7 +296,7 @@ The `bot_icon` can be specified as either an emoji (`:example:`), or a URL
 pointing to an image (`http://mysite.com/shipit.png`). Any other value seems to
 cause an error.
 
-### Custom Notification Text
+#### Custom Notification Text
 
 For users who have notifications turned on, Slack will provide a small message
 preview when you send them a message. By default, this preview will take the

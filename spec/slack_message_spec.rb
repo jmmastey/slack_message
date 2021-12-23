@@ -111,10 +111,6 @@ RSpec.describe SlackMessage do
       }.to post_slack_message_with_icon_matching(/thisperson/)
     end
 
-    it "lets you assert notification text" do
-      # TODO :|
-    end
-
     it "can assert more generally too tbh" do
       expect {
         SlackMessage.post_to('#general') { text "foo" }
@@ -123,8 +119,6 @@ RSpec.describe SlackMessage do
   end
 
   describe "API convenience" do
-    let(:profile) { SlackMessage::Configuration.profile(:default) }
-
     before do
       SlackMessage.configure do |config|
         config.clear_profiles!
@@ -158,5 +152,57 @@ RSpec.describe SlackMessage do
     end
   end
 
-  # tests for actual sending methods? what would actually be useful?
+  describe "error handling" do
+    before do
+      SlackMessage.configure do |config|
+        config.clear_profiles!
+        config.add_profile(name: 'default profile', api_token: 'abc123')
+        config.add_profile(:schmoebot, name: 'Schmoe', api_token: 'abc123', icon: ':schmoebot:', default_channel: '#schmoes')
+      end
+    end
+
+    after do
+      SlackMessage::RSpec.reset_mock_response
+    end
+
+    it "raises nice error messages when API methods return errors" do
+      SlackMessage::RSpec.respond_with('error' => 'nuffin')
+
+      expect {
+        SlackMessage.post_to('#general') { text 'nuh uh' }
+      }.to raise_error(SlackMessage::ApiError)
+
+      expect {
+        SlackMessage.post_as(:schmoebot) { text 'nuh uh' }
+      }.to raise_error(SlackMessage::ApiError)
+    end
+
+    it "raises for redirects" do
+      SlackMessage::RSpec.respond_with(code: '302')
+
+      expect {
+        SlackMessage.post_to('#general') { text 'nuh uh' }
+      }.to raise_error(SlackMessage::ApiError)
+    end
+
+    it "raises errors w/ updates too" do
+      message = SlackMessage.post_to('#general') { text 'nuh uh' }
+
+      SlackMessage::RSpec.respond_with('error' => 'bad choice')
+
+      expect {
+        SlackMessage.update(message) { text 'nuh uh' }
+      }.to raise_error(SlackMessage::ApiError)
+    end
+
+    it "even raises errors during deletes" do
+      message = SlackMessage.post_to('#general') { text 'nuh uh' }
+
+      SlackMessage::RSpec.respond_with('error' => 'bad choice')
+
+      expect {
+        SlackMessage.delete(message) { text 'nuh uh' }
+      }.to raise_error(SlackMessage::ApiError)
+    end
+  end
 end

@@ -1,6 +1,7 @@
 module SlackMessage
   require 'slack_message/response'
   require 'slack_message/dsl'
+  require 'slack_message/error_handling'
   require 'slack_message/api'
   require 'slack_message/configuration'
 

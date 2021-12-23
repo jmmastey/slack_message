@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.1] - 2021-12-22
+- Major overhaul of error handling and expansion on which errors trigger
+  friendly messages for users.
+- More additions to the docs, and working github pages integration.
+- It's my birthday!
+
 ## [3.0.0] - 2021-12-19
 - Return a more structured object from successful message sends.
 - Add the ability to edit or delete a message.

@@ -1,4 +1,4 @@
-* [Configuration](https://jmmastey.github.io/slack_message/01_configuration)
+* [Getting Started / Configuration](https://jmmastey.github.io/slack_message/01_configuration)
 * [Posting a Message](https://jmmastey.github.io/slack_message/02_posting_a_message)
 * [The SlackMessage DSL](https://jmmastey.github.io/slack_message/03_message_dsl)
 * [Editing Messages](https://jmmastey.github.io/slack_message/04_editing_messages)

@@ -10,6 +10,10 @@ module SlackMessage::Api
       raise ArgumentError, "Tried to find profile by invalid email address '#{email}'"
     end
 
+    if SlackMessage::Configuration.debugging?
+      warn [email, profile].inspect
+    end
+
     response = look_up_user_by_email(email, profile)
 
     if response.code != "200"
@@ -24,14 +28,7 @@ module SlackMessage::Api
       raise SlackMessage::ApiError, "Unable to parse JSON response from Slack API\n#{response.body}"
     end
 
-    if payload.include?("error") && payload["error"] == "invalid_auth"
-      raise SlackMessage::ApiError, "Received an error because your authentication token isn't properly configured."
-    elsif payload.include?("error") && payload["error"] == "users_not_found"
-      raise SlackMessage::ApiError, "Couldn't find a user with the email '#{email}'."
-    elsif payload.include?("error")
-      raise SlackMessage::ApiError, "Received error response from Slack during user lookup:\n#{response.body}"
-    end
-
+    SlackMessage::ErrorHandling.raise_user_lookup_errors(response, target, profile)
     payload["user"]["id"]
   end
 
@@ -69,26 +66,8 @@ module SlackMessage::Api
     end
 
     response = post_message(profile, params)
-    body  = JSON.parse(response.body)
-    error = body.fetch("error", "")
 
-    # TODO: if a scheduled message w/ a short timer is "time_in_past", warn the user?
-
-    # let's try to be helpful about error messages
-    if ["token_revoked", "token_expired", "invalid_auth", "not_authed"].include?(error)
-      raise SlackMessage::ApiError, "Couldn't send slack message because the API key for profile '#{profile[:handle]}' is wrong."
-    elsif ["no_permission", "ekm_access_denied"].include?(error)
-      raise SlackMessage::ApiError, "Couldn't send slack message because the API key for profile '#{profile[:handle]}' isn't allowed to post messages."
-    elsif error == "channel_not_found"
-      raise SlackMessage::ApiError, "Tried to send Slack message to non-existent channel or user '#{target}'"
-    elsif error == "invalid_arguments"
-      raise SlackMessage::ApiError, "Tried to send Slack message with invalid payload."
-    elsif response.code == "302"
-      raise SlackMessage::ApiError, "Got 302 response while posting to Slack. Check your API key for profile '#{profile[:handle]}'."
-    elsif response.code != "200"
-      raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
-    end
-
+    SlackMessage::ErrorHandling.raise_post_response_errors(response, params, profile)
     SlackMessage::Response.new(response, profile[:handle])
   end
 
@@ -97,7 +76,7 @@ module SlackMessage::Api
       channel: message.channel,
       ts: message.timestamp,
       blocks: payload.render,
-      text: payload.custom_notification # TODO: ???
+      text: payload.custom_notification
     }
 
     if params[:blocks].length == 0
@@ -112,8 +91,7 @@ module SlackMessage::Api
     body  = JSON.parse(response.body)
     error = body.fetch("error", "")
 
-    # TODO: error messaging
-
+    SlackMessage::ErrorHandling.raise_post_response_errors(response, message, profile)
     SlackMessage::Response.new(response, profile[:handle])
   end
 
@@ -130,10 +108,13 @@ module SlackMessage::Api
       }
     end
 
+    if SlackMessage::Configuration.debugging?
+      warn params.inspect
+    end
+
     response = delete_message(profile, params)
 
-    # TODO error handling (incl for already scheduled-and-sent messages)
-
+    SlackMessage::ErrorHandling.raise_delete_response_errors(response, message, profile)
     response
   end
 
