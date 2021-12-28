@@ -19,12 +19,11 @@ You'll find much more information about how to use SlackMessage by visiting
 [the docs](https://jmmastey.github.io/slack_message).
  
 
-### Posting
+### A Rich DSL Focused on Maintainability
 
-SlackMessage is able to build all kinds of rich messages for you, and has been
-a real joy to use for the author at least. To understand a bit more about the
-possibilities of blocks, you should play around with Slack's [Block Kit
-Builder](https://app.slack.com/block-kit-builder/). There are lots of options:
+SlackMessage is able to build all kinds of rich messages for you. It focuses on
+writing code that looks similar to the output messages themselves, with as
+little repetition and cruft as possible.
 
 ```ruby
 SlackMessage.post_to('#general') do
@@ -80,7 +79,7 @@ Some changes that are still planned or desired, but not yet added:
 
 * any interactive elements at all: https://api.slack.com/interactivity/handling
 * multiple recipients: https://api.slack.com/methods/conversations.open
-* more mrkdwn syntax, like quotes or code blocks
+* more mrkdwn syntax, like quotes or code blocks https://api.slack.com/reference/surfaces/formatting#line-breaks
 * more and better organized testing capability (scheduled messages, editing, deleting)
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
 * updated docs w/ links to BlockBuilder
