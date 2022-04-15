@@ -272,6 +272,10 @@ class SlackMessage::Dsl
 
       body
     end
+
+    def method_missing(meth, *args, &blk)
+      @parent.send meth, *args, &blk
+    end
   end
 
   class List

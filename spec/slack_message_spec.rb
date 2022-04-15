@@ -4,6 +4,10 @@ RSpec.describe SlackMessage do
 
   describe "DSL" do
     describe "#build" do
+      def outer_method
+       "foo"
+      end
+
       it "renders some JSON" do
         SlackMessage.configure do |config|
           config.clear_profiles!
@@ -13,11 +17,17 @@ RSpec.describe SlackMessage do
         expected_output = [
           { type: "section",
             text: { text: "foo", type: "mrkdwn" }
-          }
+          },
+          { type: "section",
+            text: { text: "foo", type: "mrkdwn" }
+          },
         ]
 
         output = SlackMessage.build do
-          text "foo"
+          text outer_method()
+          section do
+            text outer_method()
+          end
         end
 
         expect(output).to eq(expected_output)
