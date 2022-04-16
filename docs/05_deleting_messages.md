@@ -3,24 +3,24 @@
 Deleting a message is much like editing a message, only simpler. Just like when
 you edit a message, you'll need a reference to the message you posted.
 
-*Important Note: It's not possible to delete a message sent directly to a user.
-It's also not possible to delete a scheduled message once it's already posted.
-Don't send anything you don't want your boss to read.*
-
 ```ruby
 message = SlackMessage.post_to('#general') do
   text "Testing: #{SLACK_SECRET_KEY}"
 end
 ```
 
-Now you can simply call the `delete` method to make up for your mistakes.
+Then you can simply call the `delete` method to make up for your mistakes.
 
 ```ruby
 SlackMessage.delete(message)
 ```
 
+*Important Note: It's not possible to delete a message sent directly to a user.
+It's also not possible to delete a scheduled message once it's already posted.
+Don't send anything you don't want your boss to read.*
+
 As with editing a message, it's possible to persist messages to redis / your
-database and remove them using the timestamp and channel of your message.
+database to be removed at a later date.
 
 ```ruby
 # initially

@@ -80,16 +80,21 @@ Some changes that are still planned or desired, but not yet added:
 * any interactive elements at all: https://api.slack.com/interactivity/handling
 * multiple recipients: https://api.slack.com/methods/conversations.open
 * more mrkdwn syntax, like quotes or code blocks https://api.slack.com/reference/surfaces/formatting#line-breaks
-* more and better organized testing capability (scheduled messages, editing, deleting)
+* more and better organized testing capability (for scheduled messages, editing, deleting)
 * posting ephemeral messages: https://api.slack.com/methods/chat.postEphemeral
+* easier way to dump / load message responses
 * updated docs w/ links to BlockBuilder
 
 ### Contributing
 
-Contributions are very welcome. Fork, fix, submit pull. Since simplicity of API is a strong priority, so opening an issue to discuss possible interface changes would be wise.
+Contributions are very welcome. Fork, fix, submit pull. Since simplicity of API
+is a strong priority, so opening an issue to discuss possible interface changes
+would be wise.
 
-Contribution is expected to conform to the [Contributor Covenant](https://github.com/jmmastey/slack_message/blob/master/CODE_OF_CONDUCT.md).
+Contribution is expected to conform to the [Contributor
+Covenant](https://github.com/jmmastey/slack_message/blob/master/CODE_OF_CONDUCT.md).
 
 ### License
 
-This software is released under the [MIT License](https://github.com/jmmastey/slack_message/blob/master/MIT-LICENSE).
+This software is released under the [MIT
+License](https://github.com/jmmastey/slack_message/blob/master/MIT-LICENSE).

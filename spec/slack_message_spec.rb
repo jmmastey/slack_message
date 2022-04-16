@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe SlackMessage do
+
   describe "DSL" do
     describe "#build" do
       it "renders some JSON" do
@@ -46,6 +47,13 @@ RSpec.describe SlackMessage do
       SlackMessage.configure do |config|
         config.clear_profiles!
         config.add_profile(name: 'default profile', api_token: 'abc123')
+      end
+    end
+
+    fit do
+      SlackMessage.build do
+        notification_text 'one'
+        notification_text 'two'
       end
     end
 

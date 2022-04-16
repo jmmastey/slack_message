@@ -54,10 +54,9 @@ end
 
 ### Storing Response Objects for Later
 
-Since updates are likely to occur after you've long since finished posting the
-original message, you'll need to persist the message response somehow until you
-need to update it later. As one option, you could serialize the response object
-for later.
+Since updates are likely to occur long after you post the original message, you
+may want to persist a reference to the message until you need to update it
+later. As one option, you could serialize the response object for later.
 
 ```ruby
 # initially

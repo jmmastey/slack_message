@@ -1,8 +1,9 @@
 # Changelog
 
-## [3.0.2] - TBD
+## [3.0.2] - 2022-04-16
 - Fix tests on ruby 3.0.
-- More small adjustments and additions to docs.
+- More adjustments and additions to docs.
+- Add warnings when overriding notification text and context block.
 
 ## [3.0.1] - 2021-12-22
 - Major overhaul of error handling and expansion on which errors trigger

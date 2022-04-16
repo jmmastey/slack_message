@@ -128,7 +128,7 @@ SlackMessage.build do
 end
 ```
 
-It can also be useful to add a visual divider (similar to a `hr` in HTML)
+It can also be useful to add a visual divider (similar to an `hr` in HTML)
 between sections. To add one of these, use the `divider` helper. You can also
 add a divider at the end of all the sections, but it often looks silly.
 
@@ -154,8 +154,8 @@ end
 
 Note that a divider can only occur between sections, not within a single
 section. Because of how implicit sections are built, it may look like this
-works for simple messages. You may have troubles when you start adding more
-complicated elements to your messages.
+works for simple messages. But, you may have troubles when you start adding
+more complicated elements to your messages.
 
 ### Buttons
 
@@ -181,8 +181,8 @@ end
 Slack allows three styles for buttons: `default`, `primary`, and `danger`.
 These correspond to gray, green and red buttons respectively. If not specified,
 SlackMessage will use the `primary` style for buttons. I get that this could be
-confusing when there is a default style, but in my experience, a colorful
-button is way more common.
+confusing when there is a style specifically named default, but in my
+experience, a colorful button is way more common.
 
 You can override button style by specifying the style with your link button.
 
@@ -256,8 +256,9 @@ image](https://imgur.com/zuhjBDq). In short, `accessory_image` is part of a
 section itself and is shown alongside an existing block, while `image` is shown
 as its own top-level element.
 
-Accordingly, accessory image should be used with sections. An accessory image
-can accept alt-text, which is also a best practice for usability reasons.
+Accordingly, an accessory image should be used within a section. An accessory
+image can accept alt-text, which is also a best practice, for usability
+reasons.
 
 ```ruby
 SlackMessage.build do
@@ -271,7 +272,7 @@ end
 Only one accessory image can be used per section, and declaring more will issue
 a warning and simply override the previous accessory image.
 
-By contrast, image can be used many times, and will create a new top-level
+By contrast, `image` can be used many times, and will create a new top-level
 section for each call. Image accepts alt-text, but also a title, which will
 be displayed above the image (along with an icon to collapse the image).
 
@@ -292,7 +293,8 @@ since they could potentially be interspersed with top-level images, so I
 wouldn't recommend it.
 
 ```ruby
-# the difference between these two image styles is confusing
+# the difference between these two image styles is confusing, and the call
+# to `image` closed the current section and started a new one.
 SlackMessage.build do
   text 'Looks like the coffee machine is empty.'
   accessory_image 'https://your.com/empty_coffee_logo.jpg'
@@ -324,8 +326,9 @@ end
 # }]
 ```
 
-Context does not belong to a section, and is per-message, not per-section.
-Specifying more than one context will simply overwrite previous calls.
+Context does not belong to a section, and only one can be added to your entire
+slack message. Specifying another `context` will issue a warning and overwrite
+any previous call.
 
 ### Bot Customization
 
@@ -346,9 +349,9 @@ end
 ```
 
 Notice that the bot details aren't shown in the output of the `build` command.
-To view the changes these methods cause, use `debug` mode.
+To view the change to the message payload from these calls, use `debug` mode.
 
-The `bot_icon` can be specified as either an emoji (`:example:`), or a URL
+The `bot_icon` can be specified as either an emoji (`:shipit:`), or a URL
 pointing to an image (`http://mysite.com/shipit.png`). Any other value seems to
 cause an error.
 
@@ -375,7 +378,9 @@ end
 ```
 
 Again notice that notification text is not set within the blocks themselves, so
-you will need to enable debugging to see how it changes what is sent to the API.
+you will need to enable debugging to see how it changes what is sent to the
+API.  Only one custom notification is allowed, so further calls will issue a
+warning and replace the previous notification text.
 
 ---
 

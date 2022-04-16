@@ -101,7 +101,7 @@ end
 
 ### Scheduling a Message
 
-To schedule a message, simply provide a `at` parameter to your post. Provide
+To schedule a message, simply provide an `at` parameter to your post. Provide
 either a time object that responds to `to_i`, or an integer that represents a
 [unix timestamp](https://en.wikipedia.org/wiki/Unix_time) for the time at which
 you want your message posted.
@@ -121,8 +121,12 @@ nor can they be scheduled more than 120 days into the future.
 
 ### Best Practices
 
-Talk about having coherent methods that post a message, rather than a block
-that includes lots of indirection or ternaries.
+From experience, building messages with maintainability in mind is key. Adding
+lots of flow control and indirection will undermine your ability to understand
+and change messages later.
+
+For simple messages, using implicit sections is perfectly fine. However, if you
+intend to create several sections, it's usually better to just declare them.
 
 See the [API documentation for
 chat.postMessage](https://api.slack.com/methods/chat.postMessage) or

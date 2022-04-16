@@ -63,6 +63,13 @@ class SlackMessage::Dsl
 
     text = self.enrich_text(text)
 
+
+    previous_context = @body.find { |element| element[:type] && element[:type] == "context" }
+    if previous_context
+      previous_text = previous_context[:elements].first[:text]
+      warn "WARNING: Overriding previous context in section: #{previous_text}"
+    end
+
     @body.push({ type: "context", elements: [{
       type: "mrkdwn", text: text
     }]})
@@ -94,6 +101,10 @@ class SlackMessage::Dsl
   end
 
   def notification_text(msg)
+    if @custom_notification
+      warn "WARNING: Overriding previous custom notification text: #{@custom_notification}"
+    end
+
     @custom_notification = msg
   end
 
