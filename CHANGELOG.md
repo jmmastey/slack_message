@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.1.0] - TBD
+- Methods from the calling context can now be called within a section block.
+
 ## [3.0.2] - 2022-04-16
 - Fix tests on ruby 3.0.
 - More adjustments and additions to docs.
