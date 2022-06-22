@@ -60,7 +60,7 @@ RSpec.describe SlackMessage do
       end
     end
 
-    fit do
+    it do
       SlackMessage.build do
         notification_text 'one'
         notification_text 'two'
