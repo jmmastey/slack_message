@@ -1,6 +1,9 @@
 # Changelog
 
-## [3.1.0] - TBD
+## [3.2.0] - 2022-06-23
+- Fix bugs introduced by accidental checkin of incomplete refactor
+
+## [3.1.0] - 2022-04-18
 - Methods from the calling context can now be called within a section block.
 
 ## [3.0.2] - 2022-04-16
