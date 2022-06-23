@@ -102,7 +102,13 @@ class SlackMessage::ErrorHandling
     end
   end
 
-  def self.raise_user_lookup_response_errors(payload)
+  def self.raise_user_lookup_response_errors(response, email, profile)
+    begin
+      payload = JSON.parse(response.body)
+    rescue
+      raise SlackMessage::ApiError, "Unable to parse JSON response from Slack API\n#{response.body}"
+    end
+
     error = payload["error"]
 
     if error == "users_not_found"

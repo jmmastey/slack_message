@@ -60,13 +60,6 @@ RSpec.describe SlackMessage do
       end
     end
 
-    fit do
-      SlackMessage.build do
-        notification_text 'one'
-        notification_text 'two'
-      end
-    end
-
     it "can assert expectations against posts" do
       expect {
         SlackMessage.post_to('#lieutenant') { text "foo" }

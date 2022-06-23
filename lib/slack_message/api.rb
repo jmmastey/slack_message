@@ -22,13 +22,10 @@ module SlackMessage::Api
       raise SlackMessage::ApiError, "Received empty 200 response from Slack when looking up user info. Check your API key."
     end
 
-    begin
-      payload = JSON.parse(response.body)
-    rescue
-      raise SlackMessage::ApiError, "Unable to parse JSON response from Slack API\n#{response.body}"
-    end
+    SlackMessage::ErrorHandling.raise_user_lookup_response_errors(response, email, profile)
 
-    SlackMessage::ErrorHandling.raise_user_lookup_errors(response, target, profile)
+    payload = JSON.parse(response.body)
+
     payload["user"]["id"]
   end
 
