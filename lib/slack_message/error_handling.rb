@@ -7,8 +7,10 @@ class SlackMessage::ErrorHandling
     body  = JSON.parse(response.body)
     error = body.fetch("error", "")
 
-    if ["invalid_blocks", "invalid_blocks_format"].include?(error)
-      raise SlackMessage::ApiError, "Couldn't send Slack message because the serialized message had an invalid format"
+    if error == "invalid_blocks"
+      raise SlackMessage::ApiError, "Couldn't send Slack message because the request contained invalid blocks:\n#{JSON.pretty_generate(params[:blocks])}"
+    elsif error == "invalid_blocks_format"
+      raise SlackMessage::ApiError, "Couldn't send Slack message because blocks is not a valid JSON object or doesn't match the Block Kit syntax:\n#{JSON.pretty_generate(params[:blocks])}"
     elsif error == "channel_not_found"
       raise SlackMessage::ApiError, "Tried to send Slack message to non-existent channel or user '#{params[:channel]}'"
 
