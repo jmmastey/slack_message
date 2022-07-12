@@ -40,17 +40,17 @@ class SlackMessage::ErrorHandling
     end
   end
 
-  def self.raise_update_response_errors(response, message, profile)
+  def self.raise_update_response_errors(response, params, profile)
     body  = JSON.parse(response.body)
     error = body.fetch("error", "")
 
     if ["invalid_blocks", "invalid_blocks_format"].include?(error)
       raise SlackMessage::ApiError, "Couldn't update Slack message because the serialized message had an invalid format"
     elsif error == "channel_not_found"
-      raise SlackMessage::ApiError, "Tried to update Slack message to non-existent channel or user '#{message.channel}'"
+      raise SlackMessage::ApiError, "Tried to update Slack message to non-existent channel or user '#{params.channel}'"
 
     elsif error == "message_not_found"
-      raise SlackMessage::ApiError, "Tried to update Slack message, but the message wasn't found (timestamp '#{message.timestamp}' for channel '#{message.channel}'"
+      raise SlackMessage::ApiError, "Tried to update Slack message, but the message wasn't found (timestamp '#{params.ts}' for channel '#{params.channel}'"
     elsif error == "cant_update_message"
       raise SlackMessage::ApiError, "Couldn't update message because the message type isn't able to be updated, or #{profile[:handle]} isn't allowed to update it"
     elsif error == "edit_window_closed"
