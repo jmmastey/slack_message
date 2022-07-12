@@ -41,6 +41,10 @@ module SlackMessage::Api
       raise ArgumentError, "Tried to send an entirely empty message."
     end
 
+    if params[:blocks].length > 50
+      raise ArgumentError, "Message cannot contain more than 50 blocks"
+    end
+
     icon = payload.custom_bot_icon || profile[:icon]
     if icon =~ /^:\w+:$/
       params[:icon_emoji] = icon
@@ -78,6 +82,10 @@ module SlackMessage::Api
 
     if params[:blocks].length == 0
       raise ArgumentError, "Tried to send an entirely empty message."
+    end
+
+    if params[:blocks].length > 50
+      raise ArgumentError, "Message cannot contain more than 50 blocks"
     end
 
     if SlackMessage::Configuration.debugging?
