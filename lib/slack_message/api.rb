@@ -85,7 +85,7 @@ module SlackMessage::Api
     end
 
     if params[:blocks].length > 50
-      raise ArgumentError, "Message cannot contain more than 50 blocks"
+      raise ArgumentError, "Message cannot contain more than 50 blocks."
     end
 
     if SlackMessage::Configuration.debugging?
