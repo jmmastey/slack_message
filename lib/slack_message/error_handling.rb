@@ -36,7 +36,7 @@ class SlackMessage::ErrorHandling
     elsif response.code != "200"
       raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     elsif !(error.nil? || error == "")
-      raise SlackMessage::ApiError, "Received error response from Slack during message posting:\n#{response.body}"
+      raise SlackMessage::ApiError, "Received error response '#{error}' from Slack during message posting:\n#{response.body}"
     end
   end
 
@@ -49,10 +49,10 @@ class SlackMessage::ErrorHandling
     elsif error == "invalid_blocks_format"
       raise SlackMessage::ApiError, "Couldn't update Slack message because blocks is not a valid JSON object or doesn't match the Block Kit syntax:\n#{blocks_message(params[:blocks])}"
     elsif error == "channel_not_found"
-      raise SlackMessage::ApiError, "Tried to update Slack message to non-existent channel or user '#{params.channel}'"
+      raise SlackMessage::ApiError, "Tried to update Slack message to non-existent channel or user '#{params[:channel]}'"
 
     elsif error == "message_not_found"
-      raise SlackMessage::ApiError, "Tried to update Slack message, but the message wasn't found (timestamp '#{params.ts}' for channel '#{params.channel}'"
+      raise SlackMessage::ApiError, "Tried to update Slack message, but the message wasn't found (timestamp '#{params[:ts]}' for channel '#{params[:channel]}'"
     elsif error == "cant_update_message"
       raise SlackMessage::ApiError, "Couldn't update message because the message type isn't able to be updated, or #{profile[:handle]} isn't allowed to update it"
     elsif error == "edit_window_closed"
@@ -72,7 +72,7 @@ class SlackMessage::ErrorHandling
     elsif response.code != "200"
       raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     elsif !(error.nil? || error == "")
-      raise SlackMessage::ApiError, "Received error response from Slack during message update:\n#{response.body}"
+      raise SlackMessage::ApiError, "Received error response '#{error}' from Slack during message update:\n#{response.body}"
     end
   end
 
@@ -102,7 +102,7 @@ class SlackMessage::ErrorHandling
     elsif response.code != "200"
       raise SlackMessage::ApiError, "Got an error back from the Slack API (HTTP #{response.code}):\n#{response.body}"
     elsif !(error.nil? || error == "")
-      raise SlackMessage::ApiError, "Received error response from Slack during message delete:\n#{response.body}"
+      raise SlackMessage::ApiError, "Received error response '#{error}' from Slack during message delete:\n#{response.body}"
     end
   end
 
