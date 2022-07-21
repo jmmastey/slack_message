@@ -1,7 +1,13 @@
 # Changelog
 
+## [3.3.0] - 2022-07-21
+- Differentiate errors for bad JSON versus invalid block data.
+- Expand tests to cover many more cases.
+- Add validation for block size limit in Slack API.
+- Add CI check to prevent checkin of `fit`, `fcontext` etc.
+
 ## [3.2.0] - 2022-06-23
-- Fix bugs introduced by accidental checkin of incomplete refactor
+- Fix bugs introduced by accidental checkin of incomplete refactor.
 
 ## [3.1.0] - 2022-04-18
 - Methods from the calling context can now be called within a section block.
