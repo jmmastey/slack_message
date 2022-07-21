@@ -176,33 +176,11 @@ RSpec.describe SlackMessage do
       SlackMessage::RSpec.reset_mock_response
     end
 
-    it "raises nice error messages when API methods return errors" do
-      SlackMessage::RSpec.respond_with({'error' => 'nuffin'})
-
-      expect {
-        SlackMessage.post_to('#general') { text 'nuh uh' }
-      }.to raise_error(SlackMessage::ApiError)
-
-      expect {
-        SlackMessage.post_as(:schmoebot) { text 'nuh uh' }
-      }.to raise_error(SlackMessage::ApiError)
-    end
-
     it "raises for redirects" do
       SlackMessage::RSpec.respond_with(code: '302')
 
       expect {
         SlackMessage.post_to('#general') { text 'nuh uh' }
-      }.to raise_error(SlackMessage::ApiError)
-    end
-
-    it "raises errors w/ updates too" do
-      message = SlackMessage.post_to('#general') { text 'nuh uh' }
-
-      SlackMessage::RSpec.respond_with({'error' => 'bad choice'})
-
-      expect {
-        SlackMessage.update(message) { text 'nuh uh' }
       }.to raise_error(SlackMessage::ApiError)
     end
 
@@ -212,8 +190,77 @@ RSpec.describe SlackMessage do
       SlackMessage::RSpec.respond_with({'error' => 'bad choice'})
 
       expect {
-        SlackMessage.delete(message) { text 'nuh uh' }
+        SlackMessage.delete(message)
       }.to raise_error(SlackMessage::ApiError)
     end
+
+    shared_examples 'post api error message' do |error, error_message|
+      it "responds to posts with error code '#{error}' with the expected message" do 
+        SlackMessage::RSpec.respond_with({'error' => error})
+
+        expect {
+          SlackMessage.post_to('#general') { text 'nuh uh' }
+        }.to raise_error(SlackMessage::ApiError).with_message(error_message)
+
+        expect {
+          SlackMessage.post_as(:schmoebot) { text 'nuh uh' }
+        }.to raise_error(SlackMessage::ApiError).with_message(error_message)
+      end
+    end
+
+    shared_examples 'update api error message' do |error, error_message|
+      it "responds to updates with error code '#{error}' with the expected message" do
+        message = SlackMessage.post_to('#general') { text 'nuh uh' }
+
+        SlackMessage::RSpec.respond_with({'error' => error})
+
+        expect {
+          SlackMessage.update(message) { text 'nuh uh' }
+        }.to raise_error(SlackMessage::ApiError).with_message(error_message)
+      end
+    end
+
+    shared_examples 'delete api error message' do |error, error_message|
+      it "responds to updates with error code '#{error}' with the expected message" do
+        message = SlackMessage.post_to('#general') { text 'nuh uh' }
+
+        SlackMessage::RSpec.respond_with({'error' => error})
+
+        expect {
+          SlackMessage.delete(message)
+        }.to raise_error(SlackMessage::ApiError).with_message(error_message)
+      end
+    end
+
+    shared_examples 'block api error message' do |error, error_message|
+      include_examples 'post api error message', error, error_message
+      include_examples 'update api error message', error, error_message
+    end
+
+    include_examples 'block api error message', 'nuffin', /Received error response 'nuffin' from Slack/
+    include_examples 'block api error message', 'invalid_blocks', /because the request contained invalid blocks:\n\[Enable debugging in configuration to view block data\.\]/
+    include_examples 'block api error message', 'invalid_blocks_format', /because blocks is not a valid JSON object or doesn't match the Block Kit syntax:\n\[Enable debugging in configuration to view block data\.\]/
+    include_examples 'block api error message', 'channel_not_found', /Slack message to non-existent channel or user/
+    include_examples 'block api error message', 'invalid_auth', /because the API key for profile '.*' is wrong, or the app has insufficient permissions \(invalid_auth\)/
+    include_examples 'block api error message', 'message_too_long', /but the message was too long/
+    include_examples 'block api error message', 'invalid_arguments', /with invalid payload/
+    include_examples 'block api error message', 'rate_limited', /because you've reached your rate limit/
+
+    # Scheduling messages
+    include_examples 'post api error message', 'invalid_time', /because you requested an invalid time/
+    include_examples 'post api error message', 'time_in_past', /because you requested a time in the past \(or too close to now\)/
+    include_examples 'post api error message', 'time_too_far', /because you requested a time more than 120 days in the future/
+
+    # Updating messages
+    include_examples 'update api error message', 'message_not_found', /but the message wasn't found/
+
+    # Deleting messages
+    include_examples 'delete api error message', 'nuffin', /Received error response 'nuffin' from Slack/
+    include_examples 'delete api error message', 'invalid_scheduled_message_id', /Can't delete message because the ID was invalid, or the message has already posted/
+    include_examples 'delete api error message', 'message_not_found', /but the message wasn't found/
+    include_examples 'delete api error message', 'cant_delete_message', /Can't delete message because 'default' doesn't have permission to/
+    include_examples 'delete api error message', 'compliance_exports_prevent_deletion', /Can't delete message because team compliance settings prevent it/
+    include_examples 'delete api error message', 'invalid_auth', /because the API key for profile '.*' is wrong, or the app has insufficient permissions \(invalid_auth\)/
+    include_examples 'delete api error message', 'rate_limited', /because you've reached your rate limit/
   end
 end

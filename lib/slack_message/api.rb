@@ -93,10 +93,8 @@ module SlackMessage::Api
     end
 
     response = update_message(profile, params)
-    body  = JSON.parse(response.body)
-    error = body.fetch("error", "")
 
-    SlackMessage::ErrorHandling.raise_post_response_errors(response, message, profile)
+    SlackMessage::ErrorHandling.raise_update_response_errors(response, params, profile)
     SlackMessage::Response.new(response, profile[:handle])
   end
 

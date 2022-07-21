@@ -40,30 +40,32 @@ module SlackMessage::RSpec
   FauxResponse = Struct.new(:code, :body)
 
   def self.included(_)
-    SlackMessage::Api.undef_method(:post_message)
-    SlackMessage::Api.define_singleton_method(:post_message) do |profile, params|
-      @@listeners.each do |listener|
-        listener.record_call(params.merge(profile: profile))
+    [:post_message, :update_message, :delete_message].each do |method|
+      SlackMessage::Api.undef_method(method)
+      SlackMessage::Api.define_singleton_method(method) do |profile, params|
+        @@listeners.each do |listener|
+          listener.record_call(params.merge(profile: profile))
+        end
+
+        response = {
+         "ok" => true,
+         "channel" => "C12345678",
+         "ts" => "1635863996.002300",
+         "message" => { "type"=>"message", "subtype"=>"bot_message",
+                       "text"=>"foo",
+                       "ts"=>"1635863996.002300",
+                       "username"=>"SlackMessage",
+                       "icons"=>{"emoji"=>":successkid:"},
+                       "bot_id"=>"B1234567890",
+                       "blocks"=> [{"type"=>"section",
+                                    "block_id"=>"hAh7",
+                                    "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}
+                       ]
+         }
+        }.merge(@@custom_response).to_json
+
+        return FauxResponse.new(@@response_code, response)
       end
-
-      response = {
-       "ok" => true,
-       "channel" => "C12345678",
-       "ts" => "1635863996.002300",
-       "message" => { "type"=>"message", "subtype"=>"bot_message",
-                     "text"=>"foo",
-                     "ts"=>"1635863996.002300",
-                     "username"=>"SlackMessage",
-                     "icons"=>{"emoji"=>":successkid:"},
-                     "bot_id"=>"B1234567890",
-                     "blocks"=> [{"type"=>"section",
-                                  "block_id"=>"hAh7",
-                                  "text"=>{"type"=>"mrkdwn", "text"=>"foo", "verbatim"=>false}}
-                     ]
-       }
-      }.merge(@@custom_response).to_json
-
-      return FauxResponse.new(@@response_code, response)
     end
 
     SlackMessage::Api.undef_method(:look_up_user_by_email)
