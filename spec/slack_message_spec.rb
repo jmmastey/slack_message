@@ -36,7 +36,7 @@ RSpec.describe SlackMessage do
   end
 
   describe "configuration" do
-    it "lets you add and fetch profiles" do
+    fit "lets you add and fetch profiles" do
       SlackMessage.configure do |config|
         config.clear_profiles!
         config.add_profile(name: 'default profile', api_token: 'abc123')
