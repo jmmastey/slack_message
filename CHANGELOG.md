@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.4.0] - 2023-02-21
+- Add full support for ruby 3.0.x kwargs
+
 ## [3.3.0] - 2022-07-21
 - Differentiate errors for bad JSON versus invalid block data.
 - Expand tests to cover many more cases.
