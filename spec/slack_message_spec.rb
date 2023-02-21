@@ -127,6 +127,14 @@ RSpec.describe SlackMessage do
         SlackMessage.post_to('#general') { text "foo" }
       }.to post_to_slack.with_content_matching(/foo/)
     end
+
+    it "lets you send links with custom styles" do
+      expect {
+        SlackMessage.post_to('#general') do
+          link_button 'Does this person exist?', 'https://thispersondoesnotexist.com/image', style: :danger
+        end
+      }.to post_to_slack.with_content_matching(/danger/)
+    end
   end
 
   describe "API convenience" do
@@ -195,7 +203,7 @@ RSpec.describe SlackMessage do
     end
 
     shared_examples 'post api error message' do |error, error_message|
-      it "responds to posts with error code '#{error}' with the expected message" do 
+      it "responds to posts with error code '#{error}' with the expected message" do
         SlackMessage::RSpec.respond_with({'error' => error})
 
         expect {

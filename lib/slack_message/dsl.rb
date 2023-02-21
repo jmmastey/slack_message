@@ -80,8 +80,8 @@ class SlackMessage::Dsl
   # delegation to allow terse syntax without e.g. `section`
 
   def text(*args); default_section.text(*args); end
-  def link_button(*args); default_section.link_button(*args); end
-  def accessory_image(*args); default_section.accessory_image(*args); end
+  def link_button(*args, **kwargs); default_section.link_button(*args, **kwargs); end
+  def accessory_image(*args, **kwargs); default_section.accessory_image(*args, **kwargs); end
   def blank_line(*args); default_section.blank_line(*args); end
   def link(*args); default_section.link(*args); end
   def list_item(*args); default_section.list_item(*args); end
